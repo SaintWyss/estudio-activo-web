@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guía de Aprendizaje Efectivo</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased flex min-h-screen">
+
+  <aside id="sidebar" class="hidden md:block w-64 bg-white border-r border-gray-200 p-6 sticky top-0 h-screen overflow-y-auto">
+    <div class="sidebar">
+      <h1 class="brand">Guía</h1>
+    
+      <div id="search-wrap" class="search">
+        <input id="sidebar-search" type="search" placeholder="Buscar sección…" />
+      </div>
+    
+      <nav id="main-tabs" class="nav">
+        <a href="#intro" data-section="intro.html" class="nav__link active">
+          <span class="i">🏠</span> Inicio
+        </a>
+        <a href="#activos" data-section="otras-secciones.html" class="nav__link">
+          <span class="i">🧠</span> Captura Activa
+        </a>
+        <a href="#metodos" data-section="otras-secciones.html" class="nav__link">
+          <span class="i">📝</span> Métodos de Apuntes
+        </a>
+        <a href="#sistema" data-section="otras-secciones.html" class="nav__link">
+          <span class="i">📂</span> Tu Sistema
+        </a>
+        <a href="#tecnicas" data-section="otras-secciones.html" class="nav__link">
+          <span class="i">⚗️</span> Técnicas
+        </a>
+        <a href="#ciclo" data-section="otras-secciones.html" class="nav__link">
+          <span class="i">📅</span> Ciclo Semanal
+        </a>
+        <a href="#quiz" data-section="otras-secciones.html" class="nav__link">
+          <span class="i">❓</span> Autoevaluación
+        </a>
+        <a href="#recursos" data-section="otras-secciones.html" class="nav__link">
+          <span class="i">📚</span> Recursos
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <div class="flex-1">
+    <header class="md:hidden p-4 sticky top-0 bg-gray-50/80 backdrop-blur-sm z-10">
+      <nav id="mobile-tabs" class="flex gap-3 overflow-x-auto no-scrollbar">
+        <a href="#" data-tab="intro" class="tab active">Inicio</a>
+        <a href="#" data-tab="activos" class="tab">Captura</a>
+        <a href="#" data-tab="methods" class="tab">Métodos</a>
+      </nav>
+    </header>
+
+    <main id="main" class="px-4 md:px-8 py-8 max-w-6xl mx-auto">
+      
+      <section id="content-intro" class="tab-pane space-y-8">
+
+        <div class="card animate-pop">
+          <h2 class="text-2xl md:text-3xl font-bold mb-3">¡Bienvenido a la Guía!</h2>
+          <div class="space-y-4 text-gray-600 md:text-lg">
+            <p>
+              Esta guía interactiva es la versión digital de nuestro <strong>taller práctico de 2 horas</strong> pensado para estudiantes de ingeniería y carreras afines. Acá no solo vas a transcribir, vas a <strong>transformar la información en conocimiento útil</strong> combinando lo mejor del papel, lo digital y la inteligencia artificial.
+            </p>
+            <p>
+              A lo largo de estas secciones vas a ver cómo <strong>capturar información de forma activa</strong>, organizar tus apuntes en Notion, aplicar técnicas como <strong>Feynman</strong> y <strong>Active Recall</strong>, y usar IA (ChatGPT y NotebookLM) para generar <em>flashcards</em>, resúmenes y preguntas tipo examen.
+            </p>
+      
+            <div class="bg-gray-100 border border-gray-200 rounded-xl p-6">
+              <h3 class="text-lg font-bold text-gray-800 mb-3">En pocas palabras:</h3>
+              <ul class="list-disc list-inside space-y-2">
+                <li>Aprendé métodos de apuntes efectivos sin leer de más.</li>
+                <li>Descubrí apps y trucos de IA para estudiar más rápido.</li>
+                <li>Organizá tu conocimiento con Notion y reducí el estrés.</li>
+                <li>Convertí tus apuntes en una herramienta activa de repaso.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div class="benefit-card animate-fade">
+            <div class="benefit-icon bg-indigo-100 text-indigo-600"><i class='bx bx-time'></i></div>
+            <h3 class="font-bold text-lg mb-1">Ahorra Tiempo</h3>
+            <p class="text-gray-600 text-sm">Estudia la mitad y aprende el doble con métodos eficientes.</p>
+          </div>
+          <div class="benefit-card animate-fade" style="animation-delay: 0.05s;">
+            <div class="benefit-icon bg-green-100 text-green-600"><i class='bx bx-brain'></i></div>
+            <h3 class="font-bold text-lg mb-1">Mejora tu Memoria</h3>
+            <p class="text-gray-600 text-sm">Retén información a largo plazo sin esfuerzo constante.</p>
+          </div>
+          <div class="benefit-card animate-fade" style="animation-delay: 0.08s;">
+            <div class="benefit-icon bg-amber-100 text-amber-600"><i class='bx bx-trophy'></i></div>
+            <h3 class="font-bold text-lg mb-1">Mejores Calificaciones</h3>
+            <p class="text-gray-600 text-sm">Domina los exámenes con confianza y menos estrés.</p>
+          </div>
+        </div>
+      
+        <section id="interactive-selector" class="card animate-pop">
+          <h2 class="text-xl md:text-2xl font-bold text-center mb-1">Encontrá tu Método Ideal</h2>
+          <p class="text-center text-gray-600 mb-6">Elegí tu objetivo para ver las técnicas recomendadas.</p>
+      
+          <div id="goal-selector" class="flex flex-wrap justify-center gap-3 md:gap-4 mb-8" role="tablist">
+            <button data-goal="study"    class="pill-button active" role="tab">🎓 Estudiar para un Examen</button>
+            <button data-goal="design"   class="pill-button" role="tab">💡 Idear un Nuevo Diseño</button>
+            <button data-goal="document" class="pill-button" role="tab">📋 Documentar un Proyecto</button>
+            <button data-goal="research" class="pill-button" role="tab">🔬 Investigar a Largo Plazo</button>
+          </div>
+      
+          <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            </div>
+        </section>
+
+        <div class="card animate-pop">
+            <h3 class="text-xl font-bold text-center mb-4">Fases del Aprendizaje Efectivo</h3>
+            <div class="relative w-full max-w-3xl mx-auto h-80">
+              <canvas id="learningPhasesChart"></canvas>
+            </div>
+        </div>
+
+      </section>
+
+      <section id="content-activos" class="tab-pane hidden">
+        <h2>Contenido de Captura Activa</h2>
+        </section>
+      <section id="content-methods" class="tab-pane hidden">
+        <h2>Contenido de Métodos de Apuntes</h2>
+        </section>
+    </main>
+  </div>
+
+  <script src="app.js" defer></script> 
+</body>
+</html>

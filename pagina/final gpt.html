@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guía Turbo para Estudiar Mejor · Ingeniería</title>
+  <meta name="description" content="Página de inicio para estudiantes: apuntes activos, Notion, técnicas de estudio y IA aplicadas. Todo accionable, rápido y atractivo." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--bg:#0b1020;--card:#0f162a;--muted:#9aa5b1;--fg:#e5e7eb;--border:#22304a;--primary:#22d3ee;--primary-600:#06b6d4;--ok:#34d399;--warn:#f59e0b;--bad:#f87171}
+    html,body{height:100%}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto; background:var(--bg); color:var(--fg)}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:0 10px 24px rgba(2, 6, 23, .35)}
+    .tab{border-bottom:2px solid transparent}
+    .tab.active{border-color:var(--primary); color:var(--primary)}
+    .pill{background:#0b1226; border:1px solid var(--border)}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:.15rem .4rem;border:1px solid var(--border);border-bottom-width:3px;border-radius:.375rem}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1rem;border-radius:.75rem;border:1px solid var(--border);background:#0b1226}
+    .btn-primary{background:linear-gradient(90deg,#06b6d4,#22d3ee);color:#001319;border-color:#0ea5b7}
+    .btn-ghost{background:transparent}
+    .section-title{font-weight:800}
+    .check input:checked+span{color:var(--ok)}
+    .focus-ring:focus{outline:none; box-shadow:0 0 0 3px rgba(34,211,238,.4)}
+    /* Tarjetas flip */
+    .flip{perspective:1000px}
+    .flip-inner{position:relative;transform-style:preserve-3d;transition:transform .5s}
+    .flip:hover .flip-inner{transform:rotateY(180deg)}
+    .flip-face{position:absolute;inset:0;backface-visibility:hidden}
+    .flip-back{transform:rotateY(180deg)}
+    /* Barra progreso sticky */
+    .progress-fixed{position:fixed;inset:auto 0 0 0;background:#0b1226;border-top:1px solid var(--border);z-index:50}
+  </style>
+</head>
+<body>
+  <!-- Header / Hero -->
+  <header class="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-[#0b1020]/75 border-b border-[var(--border)]">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+      <a href="#inicio" class="flex items-center gap-2 text-lg font-extrabold text-cyan-300"><i class='bx bxs-bolt-circle text-cyan-400 text-2xl'></i> Estudio Turbo</a>
+      <nav class="ml-auto hidden md:flex gap-4 text-sm">
+        <a href="#por-que" class="hover:text-cyan-300">¿Por qué?</a>
+        <a href="#apuntes" class="hover:text-cyan-300">Apuntes activos</a>
+        <a href="#notion" class="hover:text-cyan-300">Notion</a>
+        <a href="#tecnicas" class="hover:text-cyan-300">Técnicas</a>
+        <a href="#ia" class="hover:text-cyan-300">IA aplicada</a>
+        <a href="#kit" class="hover:text-cyan-300">Kit rápido</a>
+      </nav>
+      <button id="btnTema" class="btn btn-ghost ml-2" aria-label="Cambiar contraste"><i class='bx bxs-sun text-yellow-400'></i></button>
+    </div>
+  </header>
+
+  <!-- Hero copy centrada y beneficios -->
+  <section id="inicio" class="max-w-7xl mx-auto px-4 pt-10">
+    <div class="card p-6 md:p-10">
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h1 class="text-3xl md:text-5xl section-title leading-tight">Estudiá menos. Rendí mejor.</h1>
+          <p class="mt-3 text-[var(--muted)] text-lg">Todo lo que necesitás en un solo lugar: apuntes que sirven, organización simple, técnicas que funcionan y IA para acelerar.</p>
+          <div class="mt-5 flex flex-wrap gap-3">
+            <a href="#kit" class="btn btn-primary focus-ring"><i class='bx bx-rocket'></i> Empezar en 10 minutos</a>
+            <a href="#tecnicas" class="btn focus-ring"><i class='bx bx-bulb'></i> Ver técnicas clave</a>
+          </div>
+          <ul class="mt-6 grid grid-cols-2 gap-3 text-sm">
+            <li class="pill px-3 py-2 rounded-xl"><i class='bx bxs-check-shield text-emerald-400'></i> +50% retención con recuerdo activo</li>
+            <li class="pill px-3 py-2 rounded-xl"><i class='bx bxs-time text-cyan-300'></i> Menos horas de repaso</li>
+            <li class="pill px-3 py-2 rounded-xl"><i class='bx bxs-brain text-indigo-300'></i> Entendés, no memorizás</li>
+            <li class="pill px-3 py-2 rounded-xl"><i class='bx bxs-bot text-fuchsia-300'></i> Prompts listos para copiar</li>
+          </ul>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Tarjetas flip: dolor → solución -->
+          <div class="flip card p-0">
+            <div class="flip-inner rounded-2xl overflow-hidden">
+              <div class="flip-face p-5 bg-[#111833]">
+                <h3 class="font-bold text-red-300">Problema</h3>
+                <p class="text-sm text-[var(--muted)] mt-2">Leo y subrayo. Al día siguiente no recuerdo nada.</p>
+              </div>
+              <div class="flip-face flip-back p-5 bg-[#0d2630]">
+                <h3 class="font-bold text-emerald-300">Solución</h3>
+                <p class="text-sm text-[var(--muted)] mt-2">Active Recall + Cornell. Preguntas primero, lectura después.</p>
+              </div>
+            </div>
+          </div>
+          <div class="flip card p-0">
+            <div class="flip-inner rounded-2xl overflow-hidden">
+              <div class="flip-face p-5 bg-[#111833]"><h3 class="font-bold text-red-300">Caos</h3><p class="text-sm text-[var(--muted)] mt-2">PDFs, fotos y notas sueltas.</p></div>
+              <div class="flip-face flip-back p-5 bg-[#0d2630]"><h3 class="font-bold text-emerald-300">Orden</h3><p class="text-sm text-[var(--muted)] mt-2">Notion con Materias ↔ Tareas ↔ Apuntes.</p></div>
+            </div>
+          </div>
+          <div class="flip card p-0">
+            <div class="flip-inner rounded-2xl overflow-hidden">
+              <div class="flip-face p-5 bg-[#111833]"><h3 class="font-bold text-red-300">Tiempo</h3><p class="text-sm text-[var(--muted)] mt-2">Armar resúmenes lleva horas.</p></div>
+              <div class="flip-face flip-back p-5 bg-[#0d2630]"><h3 class="font-bold text-emerald-300">IA</h3><p class="text-sm text-[var(--muted)] mt-2">Prompts para resúmenes y simulacros en 1 click.</p></div>
+            </div>
+          </div>
+          <div class="flip card p-0">
+            <div class="flip-inner rounded-2xl overflow-hidden">
+              <div class="flip-face p-5 bg-[#111833]"><h3 class="font-bold text-red-300">Ansiedad</h3><p class="text-sm text-[var(--muted)] mt-2">No sé por dónde empezar.</p></div>
+              <div class="flip-face flip-back p-5 bg-[#0d2630]"><h3 class="font-bold text-emerald-300">Plan</h3><p class="text-sm text-[var(--muted)] mt-2">Checklist semanal con recordatorios.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ¿Por qué? Explicación en 3 bullets claros -->
+  <section id="por-que" class="max-w-7xl mx-auto px-4 pt-10">
+    <div class="grid lg:grid-cols-3 gap-6">
+      <article class="card p-6">
+        <h3 class="font-bold text-lg">1) Captura activa</h3>
+        <p class="text-sm text-[var(--muted)] mt-2">Tomás decisiones mientras anotás. Eso fuerza al cerebro a procesar y recordar.</p>
+      </article>
+      <article class="card p-6">
+        <h3 class="font-bold text-lg">2) Organización mínima</h3>
+        <p class="text-sm text-[var(--muted)] mt-2">Un sistema simple en Notion evita perder info y te da foco.</p>
+      </article>
+      <article class="card p-6">
+        <h3 class="font-bold text-lg">3) Estudio activo + IA</h3>
+        <p class="text-sm text-[var(--muted)] mt-2">Recuperar, explicar, espaciar. La IA te ahorra armado de material.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Apuntes activos: mini tutorial Cornell + plantilla copiable -->
+  <section id="apuntes" class="max-w-7xl mx-auto px-4 pt-10">
+    <div class="card p-6 md:p-8">
+      <div class="flex items-start justify-between gap-6 flex-wrap">
+        <h2 class="text-2xl section-title">Apuntes activos (Cornell)</h2>
+        <button id="btnCornell" class="btn btn-primary" aria-label="Copiar plantilla Cornell"><i class='bx bx-copy'></i> Copiar plantilla</button>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-6 mt-4">
+        <div>
+          <ol class="list-decimal list-inside space-y-2 text-sm text-[var(--muted)]">
+            <li>Dividí la hoja: <strong>Notas</strong> derecha, <strong>Pistas</strong> izquierda, <strong>Resumen</strong> abajo.</li>
+            <li>En clase escribí ideas clave y ejemplos, no todo.</li>
+            <li>Dentro de 24 h generá <strong>preguntas</strong> en la columna izquierda.</li>
+            <li>Hacete un <strong>test</strong>: tapá las notas y respondé las preguntas.</li>
+          </ol>
+          <details class="mt-4">
+            <summary class="cursor-pointer text-sm">Ver ejemplo UTN (Física I)</summary>
+            <div class="mt-2 text-xs whitespace-pre-wrap bg-[#0a1427] p-3 rounded-xl border border-[var(--border)]">
+Tema: MRU vs MRUV
+Notas: v=const.; a=0; x = x0 + v·t | MRUV: a=const.; v = v0 + a·t; x = x0 + v0·t + 0.5·a·t^2
+Pistas: ¿Diferencia clave? ¿Ecuación de x(t) en MRUV? ¿Ejemplo práctico?
+Resumen: MRU sin aceleración; MRUV con aceleración constante.
+            </div>
+          </details>
+        </div>
+        <div class="grid gap-3 text-sm">
+          <div class="p-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10"><strong>Tip:</strong> usá símbolos propios (↑ ↓ ≈ ⇒) y deja espacio para corregir.</div>
+          <div class="p-4 rounded-xl border border-cyan-500/40 bg-cyan-500/10"><strong>Atajo:</strong> sacá foto y subila a Notion. Luego transcribí solo lo esencial.</div>
+          <div class="p-4 rounded-xl border border-indigo-500/40 bg-indigo-500/10"><strong>Checklist 90s:</strong> ¿resumen hecho? ¿3 preguntas clave? ¿1 ejemplo numérico?</div>
+        </div>
+      </div>
+      <textarea id="tplCornell" class="sr-only" aria-hidden="true">## Notas (derecha)
+- …
+
+## Pistas / Preguntas (izquierda)
+- ¿…?
+
+## Resumen (5 líneas)
+- …
+</textarea>
+    </div>
+  </section>
+
+  <!-- Notion: sistema mínimo que funciona + CSV demo -->
+  <section id="notion" class="max-w-7xl mx-auto px-4 pt-10">
+    <div class="card p-6 md:p-8">
+      <div class="flex items-start justify-between gap-6 flex-wrap">
+        <h2 class="text-2xl section-title">Tu segundo cerebro en Notion</h2>
+        <a class="btn btn-primary" href="https://www.notion.so/help/relations-and-rollups" target="_blank" rel="noopener"><i class='bx bx-link-external'></i> Guía oficial</a>
+      </div>
+      <div class="grid lg:grid-cols-3 gap-6 mt-4 text-sm text-[var(--muted)]">
+        <article class="p-4 rounded-xl border border-[var(--border)]">
+          <h3 class="font-bold">DB 1 · Materias</h3>
+          <ul class="list-disc list-inside mt-2">
+            <li>Título, Año, Docente, Estado</li>
+            <li>Rollup: Próxima entrega ↔ Tareas.Fecha (mín)</li>
+          </ul>
+        </article>
+        <article class="p-4 rounded-xl border border-[var(--border)]">
+          <h3 class="font-bold">DB 2 · Tareas</h3>
+          <ul class="list-disc list-inside mt-2">
+            <li>Tipo, Fecha, Estado</li>
+            <li>Relación → Materias</li>
+          </ul>
+        </article>
+        <article class="p-4 rounded-xl border border-[var(--border)]">
+          <h3 class="font-bold">DB 3 · Apuntes</h3>
+          <ul class="list-disc list-inside mt-2">
+            <li>Fecha, Materia, Resumen, Preguntas</li>
+            <li>Plantilla Cornell</li>
+          </ul>
+        </article>
+      </div>
+      <details class="mt-4">
+        <summary class="cursor-pointer text-sm">CSV de ejemplo para importar</summary>
+        <div class="grid md:grid-cols-2 gap-4 mt-3 text-xs">
+          <div><h4 class="font-semibold">Materias.csv</h4>
+<pre class="bg-[#0a1427] p-3 rounded-xl border border-[var(--border)]">Título,Año,Docente,Estado
+Análisis I,1,Gómez,Cursando
+Física I,1,Peralta,Cursando
+Algoritmos,1,Suárez,Cursando</pre>
+          </div>
+          <div><h4 class="font-semibold">Tareas.csv</h4>
+<pre class="bg-[#0a1427] p-3 rounded-xl border border-[var(--border)]">Título,Tipo,Fecha,Estado,Materia
+TP1 – Cinemática,TP,2025-10-20,Pendiente,Física I
+Parcial 1 – Límites,Parcial,2025-11-05,Pendiente,Análisis I</pre>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- Técnicas activas: Feynman, Active Recall, Espaciado, Flashcards -->
+  <section id="tecnicas" class="max-w-7xl mx-auto px-4 pt-10">
+    <div class="card p-6 md:p-8">
+      <h2 class="text-2xl section-title">Técnicas activas que de verdad rinden</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4 text-sm">
+        <article class="p-4 rounded-xl border border-emerald-600/40 bg-emerald-500/5">
+          <h3 class="font-bold">Feynman</h3>
+          <p class="text-[var(--muted)] mt-1">Explicá como a un novato. Si te trabás, detectaste un hueco.</p>
+          <details class="mt-2"><summary class="cursor-pointer">Plantilla 1 min</summary>
+<pre class="bg-[#0a1427] p-3 rounded-xl border border-[var(--border)]">Tema: ____
+Explicación simple (8–12 líneas)
+Analogía: ____
+3 preguntas de chequeo:
+1) __ 2) __ 3) __</pre></details>
+        </article>
+        <article class="p-4 rounded-xl border border-cyan-600/40 bg-cyan-500/5">
+          <h3 class="font-bold">Active Recall</h3>
+          <p class="text-[var(--muted)] mt-1">Tapá notas y respondé en voz alta. Después corregí.</p>
+          <ul class="list-disc list-inside mt-2">
+            <li>Sesión: 25' estudio → 5' test</li>
+            <li>Usá preguntas de la columna Cornell</li>
+          </ul>
+        </article>
+        <article class="p-4 rounded-xl border border-indigo-600/40 bg-indigo-500/5">
+          <h3 class="font-bold">Espaciado</h3>
+          <p class="text-[var(--muted)] mt-1">0 → 2 → 7 → 15 días. Justo antes de olvidar.</p>
+          <button id="btnTimer" class="btn mt-2"><i class='bx bx-timer'></i> Temporizador 25'</button>
+        </article>
+        <article class="p-4 rounded-xl border border-fuchsia-600/40 bg-fuchsia-500/5">
+          <h3 class="font-bold">Flashcards</h3>
+          <p class="text-[var(--muted)] mt-1">Una idea por tarjeta. Preferí <em>cloze</em>.</p>
+          <details class="mt-2"><summary class="cursor-pointer">Ejemplos cloze</summary>
+<pre class="bg-[#0a1427] p-3 rounded-xl border border-[var(--border)]">Ley de Ohm: {{c1::V = I·R}}
+∂/∂x (ln x) = {{c1::1/x}}
+OSI 4→7: {{c1::Transporte}}, {{c2::Sesión}}, {{c3::Presentación}}, {{c4::Aplicación}}</pre></details>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- IA aplicada: prompts con botón copiar -->
+  <section id="ia" class="max-w-7xl mx-auto px-4 pt-10">
+    <div class="card p-6 md:p-8">
+      <div class="flex items-start justify-between gap-6 flex-wrap">
+        <h2 class="text-2xl section-title">IA aplicada al estudio</h2>
+        <div class="flex gap-2">
+          <button class="btn pill" data-prompt="resumen">Resumen Cornell</button>
+          <button class="btn pill" data-prompt="quiz">Quiz desde PDF</button>
+          <button class="btn pill" data-prompt="anki">Anki (cloze)</button>
+          <button class="btn pill" data-prompt="feynman">Explicar simple</button>
+        </div>
+      </div>
+      <div class="mt-4 grid lg:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-[var(--muted)] mb-2">Seleccioná una tarea y copiá el prompt.</p>
+          <div id="promptBox" class="p-4 rounded-xl bg-[#0a1427] border border-[var(--border)] text-xs whitespace-pre-wrap"></div>
+          <div class="mt-3 flex gap-2">
+            <button id="copyPrompt" class="btn btn-primary"><i class='bx bx-copy'></i> Copiar</button>
+            <a class="btn" href="https://notebooklm.google.com/" target="_blank" rel="noopener"><i class='bx bx-link-external'></i> Abrir NotebookLM</a>
+          </div>
+        </div>
+        <ul class="text-sm text-[var(--muted)] space-y-2">
+          <li><i class='bx bxs-bulb text-yellow-400'></i> ChatGPT = creatividad y generación. NotebookLM = trabaja sobre tus archivos y cita fuentes.</li>
+          <li><i class='bx bxs-check-circle text-emerald-400'></i> Subí tus PDFs apuntes/TPs para respuestas contextualizadas.</li>
+          <li><i class='bx bxs-time text-cyan-300'></i> 40% menos tiempo para preparar resúmenes y tarjetas.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Kit rápido: 7 pasos + progreso local -->
+  <section id="kit" class="max-w-7xl mx-auto px-4 pt-10 pb-24">
+    <div class="card p-6 md:p-8">
+      <h2 class="text-2xl section-title">Kit rápido de implementación (7 pasos)</h2>
+      <ol id="todo" class="mt-4 grid md:grid-cols-2 gap-3 text-sm">
+        <li class="check flex items-start gap-3 p-3 rounded-xl border border-[var(--border)]"><input type="checkbox" class="mt-1"/><span>Imprimí 3 hojas Cornell para esta semana.</span></li>
+        <li class="check flex items-start gap-3 p-3 rounded-xl border border-[var(--border)]"><input type="checkbox" class="mt-1"/><span>Creá en Notion las DB <em>Materias</em>, <em>Tareas</em> y <em>Apuntes</em>.</span></li>
+        <li class="check flex items-start gap-3 p-3 rounded-xl border border-[var(--border)]"><input type="checkbox" class="mt-1"/><span>Subí tus PDFs a NotebookLM.</span></li>
+        <li class="check flex items-start gap-3 p-3 rounded-xl border border-[var(--border)]"><input type="checkbox" class="mt-1"/><span>Hacé 1 explicación Feynman de la semana.</span></li>
+        <li class="check flex items-start gap-3 p-3 rounded-xl border border-[var(--border)]"><input type="checkbox" class="mt-1"/><span>Generá 20 flashcards en Anki (cloze).</span></li>
+        <li class="check flex items-start gap-3 p-3 rounded-xl border border-[var(--border)]"><input type="checkbox" class="mt-1"/><span>Programá repasos 0→2→7→15 días.</span></li>
+        <li class="check flex items-start gap-3 p-3 rounded-xl border border-[var(--border)]"><input type="checkbox" class="mt-1"/><span>Autoevaluación de 15' con tus preguntas.</span></li>
+      </ol>
+      <div class="mt-4 text-sm text-[var(--muted)]">Progreso: <span id="pct">0%</span></div>
+    </div>
+  </section>
+
+  <!-- Barra de progreso sticky y CTA -->
+  <div class="progress-fixed">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+      <div class="flex-1 h-2 bg-[#0a1427] rounded-full overflow-hidden border border-[var(--border)]"><div id="bar" class="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 w-0"></div></div>
+      <a href="#kit" class="btn btn-primary"><i class='bx bx-run'></i> Seguí el plan</a>
+    </div>
+  </div>
+
+  <script>
+    // Tema: sólo alterna una clase de alto contraste para usuarios que lo pidan
+    document.getElementById('btnTema').addEventListener('click',()=>{
+      document.documentElement.toggleAttribute('data-contrast');
+    });
+
+    // Copiar plantilla Cornell
+    const tpl = document.getElementById('tplCornell').value;
+    document.getElementById('btnCornell').addEventListener('click', async()=>{
+      await navigator.clipboard.writeText(tpl);
+      alert('Plantilla copiada. Pegala en Notion o donde quieras.');
+    });
+
+    // Temporizador Pomodoro simple 25'
+    document.getElementById('btnTimer').addEventListener('click',()=>{
+      const end = Date.now() + 25*60*1000;
+      const tick = ()=>{
+        const left = Math.max(0, end - Date.now());
+        const m = String(Math.floor(left/60000)).padStart(2,'0');
+        const s = String(Math.floor((left%60000)/1000)).padStart(2,'0');
+        document.getElementById('btnTimer').innerHTML = `<i class='bx bx-timer'></i> ${m}:${s}`;
+        if(left>0) requestAnimationFrame(tick); else document.getElementById('btnTimer').innerHTML = "Listo ✅";
+      };
+      tick();
+    });
+
+    // Prompts IA
+    const prompts = {
+      resumen:`Quiero un resumen tipo Cornell a partir del siguiente texto. \nRol: sos ayudante de cátedra de [MATERIA]. \nTarea: extraer ideas clave, preguntas para la columna izquierda y un resumen de 5 líneas. \nFormato: Markdown con secciones ## Notas, ## Pistas, ## Resumen. \nTexto: <<<PEGAR TEXTO O PDF>>>`,
+      quiz:`Generá 15 preguntas tipo parcial sobre [TEMA] con 4 opciones y respuesta correcta + breve explicación. Devolvé JSON con campos pregunta, opciones[a–d], correcta, explicacion, tema. Nivel: UTN.`,
+      anki:`Convertí mis apuntes en tarjetas Anki tipo Cloze. Regla: una idea por tarjeta. Devolvé cada cloze en una línea. Texto: <<<APUNTES>>>`,
+      feynman:`Actuá como profe paciente. Quiero explicar [CONCEPTO] a un secundario. Pedime que lo explique con mis palabras, detectá huecos con preguntas y devolvé una versión simplificada + una analogía técnica.`
+    };
+    const promptBox = document.getElementById('promptBox');
+    promptBox.textContent = prompts.resumen;
+    document.querySelectorAll('[data-prompt]').forEach(btn=>{
+      btn.addEventListener('click',()=>{ promptBox.textContent = prompts[btn.dataset.prompt] || prompts.resumen; });
+    });
+    document.getElementById('copyPrompt').addEventListener('click',async()=>{
+      await navigator.clipboard.writeText(promptBox.textContent); alert('Prompt copiado.');
+    });
+
+    // Checklist con localStorage + barra progreso
+    const todo = document.querySelectorAll('#todo input[type="checkbox"]');
+    const key='estudio-turbo-check';
+    // cargar
+    const saved = JSON.parse(localStorage.getItem(key)||'[]');
+    todo.forEach((chk,i)=>{ chk.checked = !!saved[i]; });
+    const update=()=>{
+      const vals = Array.from(todo).map(c=>c.checked);
+      localStorage.setItem(key, JSON.stringify(vals));
+      const pct = Math.round(100* vals.filter(Boolean).length / vals.length);
+      document.getElementById('pct').textContent = pct + '%';
+      document.getElementById('bar').style.width = pct + '%';
+    };
+    todo.forEach(chk=> chk.addEventListener('change', update));
+    update();
+  </script>
+</body>
+</html>

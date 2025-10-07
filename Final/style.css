@@ -1,0 +1,268 @@
+/* ------------------------------ */
+/* Variables Globales             */
+/* ------------------------------ */
+:root {
+  /* Paleta de Colores */
+  --primary: #4f46e5;
+  --primary-2: #4338ca;
+  --primary-gradient: linear-gradient(90deg, var(--primary), #a855f7);
+  --primary-green: #10b981;
+  
+  /* Colores de Fondo y Borde */
+  --bg: #f7f8fb;
+  --card-bg: #fff;
+  --border-color: #e5e7eb;
+
+  /* Colores de Texto */
+  --text-dark: #111827;
+  --text-light: #6b7280;
+  --text-on-primary: #fff;
+}
+
+/* ------------------------------ */
+/* Estilos Base y Reset           */
+/* ------------------------------ */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+  color: var(--text-dark);
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: 260px 1fr;
+}
+
+@media (max-width: 1024px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------ */
+/* Componentes Principales        */
+/* ------------------------------ */
+
+/* --- Sidebar --- */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+  background: var(--card-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 20px;
+}
+
+.brand {
+  margin: 0 0 14px;
+  font-weight: 800;
+  font-size: 22px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.search input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: #f9fafb;
+  margin: 10px 0 16px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text-dark);
+  border: 1px solid transparent;
+  transition: background .2s, border-color .2s;
+}
+
+.nav__link:hover {
+  background: #f3f4f6;
+  border-color: var(--border-color);
+}
+
+.nav__link.active {
+  background: var(--primary-gradient);
+  color: var(--text-on-primary);
+  border-color: transparent;
+}
+
+.nav__link .i {
+  width: 22px;
+  text-align: center;
+}
+
+/* --- Contenido Principal --- */
+#content {
+  padding: 28px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* --- Layouts de Grid --- */
+.grid {
+  display: grid;
+  gap: 18px;
+}
+.grid--2 { grid-template-columns: repeat(2, 1fr); }
+.grid--3 { grid-template-columns: repeat(3, 1fr); }
+
+@media (max-width: 900px) {
+  .grid--2, .grid--3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------ */
+/* Componentes Específicos        */
+/* ------------------------------ */
+
+/* --- Beneficios --- */
+.benefit {
+  text-align: center;
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--card-bg);
+}
+
+.benefit__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.benefit__title {
+  margin: 6px 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* --- Botones "Pill" --- */
+.pill-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.pill-button {
+  border: 1px solid var(--border-color);
+  background: #f3f4f6;
+  color: var(--text-dark);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill-button:hover {
+  background: #e5e7eb;
+}
+
+.pill-button.active {
+  background: var(--primary-gradient);
+  border-color: transparent;
+  color: var(--text-on-primary);
+  transform: scale(1.03);
+}
+
+/* --- Tarjetas Pequeñas (Recomendaciones) --- */
+.mini-card {
+  background: #f9fafb;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 16px;
+  transition: .2s transform, .2s box-shadow;
+}
+
+.mini-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+}
+
+.mini-card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.mini-card__head .emoji {
+  font-size: 22px;
+}
+
+.mini-card__tag {
+  color: var(--primary-green);
+  font-weight: 700;
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+
+/* --- Gráfico (Chart) --- */
+.chart-wrap {
+  width: 100%;
+  max-width: 720px;
+  height: 320px; /* Altura fija para consistencia */
+  margin: 8px auto 0;
+}
+
+
+/* ------------------------------ */
+/* Clases de Utilidad             */
+/* ------------------------------ */
+.text-lg { font-size: 18px; }
+.text-muted { color: var(--text-light); }
+.h6 { font-size: 14px; font-weight: 700; margin: 0 0 6px; }
+
+/* Animaciones */
+.animate-fade {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

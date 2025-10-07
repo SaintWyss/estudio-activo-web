@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guía Interactiva de Apuntes para Ingenieros v3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+      :root {
+        --bg-color: #f9fafb;
+        --primary-green: #00bfa6;
+        --primary-blue: #7c3aed;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --border-color: #e5e7eb;
+        --card-bg: #ffffff;
+        --quiz-accent-color: #0d6efd;
+        --quiz-correct-color: #198754;
+        --quiz-incorrect-color: #dc3545;
+        --quiz-skip-color: #ffc107;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        min-height: 100vh;
+      }
+      .tab.active { border-color: var(--primary-green); color: var(--primary-green); font-weight: 600; }
+      .tab:not(.active) { border-color: transparent; }
+      .pill-button.active { background-color: var(--primary-green); color: #fff; box-shadow: 0 4px 14px rgb(16 185 129 / 30%); transform: scale(1.05); }
+      .chart-container { position: relative; width: 100%; max-width: 450px; margin-left: auto; margin-right: auto; height: 280px; }
+      @media(min-width: 768px) { .chart-container { height: 320px; } }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      .sidebar { width: 250px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); padding: 24px; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+      .sidebar-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--primary-blue); margin-bottom: 2rem; }
+      .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 8px; border-radius: 12px; font-weight: 500; color: var(--text-dark); transition: all 0.2s ease; text-decoration: none; }
+      .sidebar nav a:hover { background-color: var(--bg-color); }
+      .sidebar nav a.active { background-color: var(--primary-green); color: #fff; font-weight: 600; box-shadow: 0 4px 14px rgb(0 191 166 / 30%); }
+      .main-content-container { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; }
+      @media (max-width: 768px) { .main-content-container { padding: 1rem; } }
+
+      #method-tabs .method-tab.active { border-color: var(--primary-green); color: var(--primary-green); font-weight: 600; }
+      
+      .timeline { position: relative; padding: 2rem 0; }
+      .timeline::before { content: ''; position: absolute; left: 50%; transform: translateX(-50%); top: 0; bottom: 0; width: 4px; background-color: #d1d5db; border-radius: 2px; }
+      .timeline-item { position: relative; width: 50%; padding: 1rem 2rem; }
+      .timeline-item:nth-child(odd) { left: 0; padding-right: 4rem; text-align: right; }
+      .timeline-item:nth-child(even) { left: 50%; padding-left: 4rem; text-align: left; }
+      .timeline-dot { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; background-color: var(--primary-green); border: 4px solid var(--bg-color); border-radius: 50%; z-index: 10; }
+      .timeline-item:nth-child(odd) .timeline-dot { right: -10px; }
+      .timeline-item:nth-child(even) .timeline-dot { left: -10px; }
+      
+      .ai-task-btn.active { background-color: var(--primary-blue); color: #fff; }
+
+      /* Quiz Styles */
+      .quiz-container-wrapper { background: #ffffff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); border: 1px solid #ddd; margin-bottom: 20px; }
+      @keyframes card-fade-in { from { opacity: 0.7; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+      .fade-in-effect { animation: card-fade-in 0.4s ease-out; }
+      .file-loader { text-align: center; border: 2px dashed #dee2e6; padding: 40px; transition: border-color 0.3s; }
+      #file-input { display: none; }
+      .upload-btn { background: var(--quiz-accent-color); color: #fff; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 1em; font-weight: 500; transition: background 0.2s; }
+      .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+      .confirm-btn { background: var(--quiz-accent-color); color: #fff; }
+      .next-btn { background: var(--quiz-correct-color); color: #fff; }
+      .skip-btn { background: var(--quiz-skip-color); color: #000; }
+      .back-btn { background: #6c757d; color: #fff; }
+      .ai-explain-btn { background: #007bff; color: #fff; }
+      .score-box { font-weight: 500; padding: 4px 12px; border-radius: 8px; font-size: 0.85em; display: flex; align-items: center; gap: 6px; }
+      .score-box.correct { background: #d1e7dd; color: var(--quiz-correct-color); }
+      .score-box.incorrect { background: #f8d7da; color: var(--quiz-incorrect-color); }
+      .score-box.skipped { background: #fff3cd; color: var(--quiz-skip-color); }
+      .option { background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.2s; }
+      .option.selected { border-color: var(--quiz-accent-color); background: #cfe2ff; }
+      .option.correct { background: #d1e7dd; border-color: var(--quiz-correct-color); }
+      .option.incorrect { background: #f8d7da; border-color: var(--quiz-incorrect-color); }
+      .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0, 0, 0, 0.1); border-radius: 50%; border-top-color: var(--quiz-accent-color); animation: spin 1s ease-in-out infinite; margin-left: 10px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .message-box-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+      .message-box { background-color: var(--card-bg); padding: 24px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); max-width: 400px; text-align: center; }
+    </style>
+</head>
+<body class="antialiased">
+  <aside class="sidebar hidden md:block" aria-label="Navegación principal">
+    <h1 class="sidebar-title">Guía de Apuntes</h1>
+    <nav id="main-tabs">
+      <a href="#" data-tab="intro" class="active"><i class='bx bxs-home' ></i> Introducción</a>
+      <a href="#" data-tab="activos"><i class='bx bxs-brain' ></i> Activos vs Pasivos</a>
+      <a href="#" data-tab="workflow"><i class='bx bxs-sitemap' ></i> Flujo de Trabajo</a>
+      <a href="#" data-tab="methods"><i class='bx bxs-book-content'></i> Métodos</a>
+      <a href="#" data-tab="techniques"><i class='bx bxs-flask'></i> Técnicas Activas</a>
+      <a href="#" data-tab="organization"><i class='bx bxs-spreadsheet'></i> Organización</a>
+      <a href="#" data-tab="ai"><i class='bx bxs-bot' ></i> IA Aplicada</a>
+      <a href="#" data-tab="quiz"><i class='bx bxs-help-circle' ></i> Autoevaluación</a>
+      <a href="#" data-tab="resources"><i class='bx bxs-archive'></i> Recursos</a>
+    </nav>
+  </aside>
+
+  <div class="main-content-container">
+    <header class="mb-6 md:hidden">
+      <div class="bg-white rounded-2xl p-4 border border-gray-200">
+        <h1 class="text-xl font-bold text-gray-800">Guía de Apuntes v3.0</h1>
+        <div class="mt-4 border-b border-gray-200">
+          <nav id="mobile-tabs" class="flex space-x-4 no-scrollbar overflow-x-auto">
+            <a href="#" data-tab="intro" class="tab py-3 px-1 text-sm font-medium active whitespace-nowrap">Intro</a>
+            <a href="#" data-tab="activos" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Activos</a>
+            <a href="#" data-tab="workflow" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Flujo</a>
+            <a href="#" data-tab="methods" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Métodos</a>
+            <a href="#" data-tab="techniques" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Técnicas</a>
+            <a href="#" data-tab="organization" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Org.</a>
+            <a href="#" data-tab="ai" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">IA</a>
+            <a href="#" data-tab="quiz" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Quiz</a>
+            <a href="#" data-tab="resources" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Recursos</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="px-1 md:px-6">
+      <section id="content-intro" class="tab-pane">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+          <h2 class="text-2xl md:text-3xl font-bold mb-4">Estrategias de Estudio con IA</h2>
+          <p class="text-lg text-gray-700">Esta guía es la versión digital de nuestro taller práctico. El objetivo es simple: enseñarte a estudiar de manera más inteligente, no más duro. Aprenderás a tomar apuntes que realmente sirven, a organizar tus materias sin estrés y a usar la IA como tu asistente de estudio personal.</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold text-center mb-4">¿Qué aprenderás en el taller?</h3>
+                <div class="chart-container">
+                    <canvas id="workshopPlanChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold mb-4">Los 4 Bloques del Éxito</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start"><div class="w-8 h-8 rounded-full bg-blue-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">1</div><div><h4 class="font-semibold">Método Cornell</h4><p class="text-sm text-gray-500">Fundamentos de la toma de apuntes activos en papel.</p></div></li>
+                    <li class="flex items-start"><div class="w-8 h-8 rounded-full bg-teal-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">2</div><div><h4 class="font-semibold">Organización en Notion</h4><p class="text-sm text-gray-500">Digitalización y creación de un sistema de estudio personal.</p></div></li>
+                    <li class="flex items-start"><div class="w-8 h-8 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">3</div><div><h4 class="font-semibold">Técnicas Activas</h4><p class="text-sm text-gray-500">Introducción a Feynman, Active Recall y flashcards.</p></div></li>
+                    <li class="flex items-start"><div class="w-8 h-8 rounded-full bg-rose-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">4</div><div><h4 class="font-semibold">Potenciando con IA</h4><p class="text-sm text-gray-500">Uso de ChatGPT y NotebookLM para estudio inteligente.</p></div></li>
+                </ul>
+            </div>
+        </div>
+      </section>
+
+      <section id="content-activos" class="tab-pane" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-3xl font-bold text-center mb-4">Apuntes Pasivos vs. Activos</h2>
+            <p class="text-lg text-gray-600 text-center max-w-2xl mx-auto mb-8">La diferencia es simple: los apuntes <strong>pasivos</strong> son una transcripción, tu cerebro está en piloto automático. Los apuntes <strong>activos</strong> te obligan a pensar, resumir y conectar ideas mientras escribes.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">El Impacto en la Retención</h3>
+                    <p class="text-gray-600 mb-6">Estudios demuestran que métodos activos como Cornell mejoran la retención a largo plazo. Al procesar la información para resumirla o generar preguntas, creas conexiones neuronales más fuertes.</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li class="text-red-600 font-semibold">Pasivo: Copiar textualmente. Baja retención.</li>
+                        <li class="text-green-600 font-semibold">Activo: Resumir, preguntar, conectar. Alta retención.</li>
+                    </ul>
+                </div>
+                <div class="chart-container">
+                    <canvas id="retentionChart"></canvas>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      <section id="content-workflow" class="tab-pane" style="display:none;">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold">Nuestro Flujo de Trabajo Propuesto</h2>
+          <p class="text-lg text-gray-600 mt-2">Un sistema de 3 pasos que combina lo mejor del mundo analógico y digital.</p>
+        </div>
+        <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4 max-w-4xl mx-auto">
+            <div class="text-center flex-1 p-4 rounded-lg"><div class="text-5xl mb-2">✍️</div><h4 class="font-bold">1. Captura Activa</h4><p class="text-sm text-gray-600">Toma apuntes en clase usando el método Cornell en papel o tablet.</p></div>
+            <div class="text-4xl text-gray-300 font-light">➔</div>
+            <div class="text-center flex-1 p-4 rounded-lg"><div class="text-5xl mb-2">🧠</div><h4 class="font-bold">2. Organiza y Digitaliza</h4><p class="text-sm text-gray-600">Pasa tus notas a Notion para crear tu "segundo cerebro" buscable y ordenado.</p></div>
+            <div class="text-4xl text-gray-300 font-light">➔</div>
+            <div class="text-center flex-1 p-4 rounded-lg"><div class="text-5xl mb-2">🤖</div><h4 class="font-bold">3. Potencia con IA</h4><p class="text-sm text-gray-600">Usa la IA para generar flashcards, resúmenes y preguntas a partir de tus notas.</p></div>
+        </div>
+      </section>
+      
+      <section id="content-methods" class="tab-pane" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+          <h2 class="text-2xl font-bold mb-4">Métodos de Apuntes</h2>
+          <p class="text-gray-600 mb-6">No hay un método único. El mejor es el que se adapta a vos y a la materia. Aquí comparamos los más efectivos.</p>
+          <div class="flex justify-center w-full mb-6">
+            <nav id="method-tabs" class="flex space-x-4 no-scrollbar overflow-x-auto border-b-2 border-gray-200">
+              <a href="#" data-method="cornell" class="method-tab active py-3 px-1 font-medium whitespace-nowrap">Cornell</a>
+              <a href="#" data-method="sketchnoting" class="method-tab py-3 px-1 font-medium whitespace-nowrap">Sketchnoting</a>
+              <a href="#" data-method="mindmap" class="method-tab py-3 px-1 font-medium whitespace-nowrap">Mapas Mentales</a>
+              <a href="#" data-method="zettelkasten" class="method-tab py-3 px-1 font-medium whitespace-nowrap">Zettelkasten</a>
+              <a href="#" data-method="linear" class="method-tab py-3 px-1 font-medium whitespace-nowrap">Notas Lineales</a>
+            </nav>
+          </div>
+          <div id="method-content"></div>
+        </div>
+      </section>
+
+      <section id="content-techniques" class="tab-pane" style="display:none;">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold">Técnicas de Estudio Activo</h2>
+            <p class="text-lg text-gray-600 mt-2">Tener buenos apuntes es la mitad del trabajo. La otra mitad es usarlos para estudiar de verdad.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold mb-4">Las 3 Claves del Estudio Activo</h3>
+                <ul class="list-disc list-inside space-y-3">
+                    <li><strong>Active Recall:</strong> Autoevalúate constantemente. Tapa tus notas y trata de recordar la información. Es el ejercicio más potente para la memoria.</li>
+                    <li><strong>Método Feynman:</strong> Explica un concepto con tus propias palabras, de la forma más simple posible. Si no puedes, aún no lo entiendes bien.</li>
+                    <li><strong>Repetición Espaciada:</strong> Repasa la información en intervalos de tiempo crecientes. Vence la "curva del olvido" y consolida el conocimiento a largo plazo.</li>
+                </ul>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold text-center mb-4">La Curva del Olvido y el Repaso Espaciado</h3>
+                <div class="timeline">
+                     <div class="timeline-item"><div class="timeline-dot"></div><h4 class="font-bold text-green-600">Día 1</h4><p class="text-sm">Primer repaso (dentro de 24h).</p></div>
+                     <div class="timeline-item"><div class="timeline-dot"></div><h4 class="font-bold text-green-600">Día 3</h4><p class="text-sm">Segundo repaso.</p></div>
+                      <div class="timeline-item"><div class="timeline-dot"></div><h4 class="font-bold text-green-600">Día 7</h4><p class="text-sm">Tercer repaso. El recuerdo se fortalece.</p></div>
+                      <div class="timeline-item"><div class="timeline-dot"></div><h4 class="font-bold text-green-600">Día 16</h4><p class="text-sm">Cuarto repaso. Conocimiento consolidado.</p></div>
+                 </div>
+            </div>
+        </div>
+      </section>
+
+      <section id="content-organization" class="tab-pane" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+          <h2 class="text-3xl font-bold mb-4">Organización Académica en Notion</h2>
+          <p class="text-gray-600 mb-6">Notion te permite crear un "segundo cerebro" para tu carrera. Centraliza todo: materias, fechas, apuntes y repasos.</p>
+          <ol class="list-decimal list-inside space-y-4">
+              <li><span class="font-semibold">Crea tu Base de Materias:</span> Una tabla simple con columnas para Nombre, Año, Docente, Estado (Cursando, Aprobada) y un enlace a la página de la materia.</li>
+              <li><span class="font-semibold">Arma tu Agenda Central:</span> Una base de datos con vista de calendario para parciales, entregas y tareas. Usa etiquetas para filtrar por materia.</li>
+              <li><span class="font-semibold">Vincula Todo:</span> Dentro de la página de cada materia, crea una base de datos de clases. Cada clase es una página que usa tu plantilla de apuntes (ej. Cornell).</li>
+              <li><span class="font-semibold">Usa Plantillas Reutilizables:</span> Diseña una plantilla para "Nueva Clase" o "Nuevo Resumen" para mantener la consistencia y ahorrar tiempo.</li>
+              <li><span class="font-semibold">Conecta Ideas:</span> Usa los enlaces `@` para conectar una clase con un tema de otra materia, creando una red de conocimiento personal.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="content-ai" class="tab-pane" style="display:none;">
+        <div class="text-center mb-12"><h2 class="text-3xl font-bold">Potencia tu Estudio con IA</h2><p class="text-lg text-gray-600 mt-2">La IA es tu asistente personal de estudio, no una máquina de hacer trampa.</p></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold mb-4">ChatGPT vs. NotebookLM</h3>
+                <p class="text-sm text-gray-600 mb-4">ChatGPT es un genio creativo, ideal para explicaciones y generar ideas. NotebookLM es tu experto personal, trabaja sobre TUS documentos y siempre cita sus fuentes.</p>
+                <div class="chart-container"><canvas id="aiToolsChart"></canvas></div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold mb-4">Asistente de Prompts</h3>
+                <p class="text-sm text-gray-600 mb-4">Un buen prompt te da un buen resultado. Selecciona una tarea para ver un ejemplo.</p>
+                <div id="ai-task-selector" class="flex flex-wrap gap-2 mb-4">
+                    <button data-task="resumen" class="ai-task-btn text-sm px-3 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition">Crear Resumen</button>
+                    <button data-task="quiz" class="ai-task-btn text-sm px-3 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition">Generar Quiz</button>
+                    <button data-task="explicacion" class="ai-task-btn text-sm px-3 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition">Explicación Simple</button>
+                </div>
+                <div class="bg-gray-800 rounded-xl p-4">
+                    <p class="text-xs font-semibold text-gray-400 mb-2">PROMPT SUGERIDO:</p>
+                    <code id="prompt-display" class="text-gray-100 text-sm whitespace-pre-wrap font-mono"></code>
+                </div>
+                 <div class="mt-4 bg-purple-50 p-4 rounded-xl">
+                    <h4 class="font-bold text-sm text-purple-800">Prompt Engineering 101</h4>
+                    <p class="text-xs text-purple-700 mt-1">La fórmula mágica: <strong class="font-mono">ROL + TAREA + CONTEXTO + FORMATO + TONO</strong>.</p>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      <section id="content-quiz" class="tab-pane" style="display:none;">
+        <div id="file-loader" class="quiz-container-wrapper file-loader">
+          <h2 class="text-2xl font-bold">Autoevaluación Interactiva</h2>
+          <p class="text-gray-600">Sube un archivo Excel con tus preguntas y pon a prueba tu conocimiento.</p>
+          <input id="file-input" type="file" accept=".xlsx,.xls" />
+          <label for="file-input" class="upload-btn">Seleccionar Archivo .xlsx</label>
+          <p id="status-message"></p>
+        </div>
+        <div id="selection-menu-container" class="quiz-container-wrapper" style="display:none;">
+          <h2 class="text-xl font-bold mb-4">Configura tu Cuestionario</h2>
+          <div class="space-y-4">
+            <div><h3 class="font-semibold mb-2">Temas Disponibles:</h3><div id="topic-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div></div>
+            <div><label for="num-questions" class="font-semibold mb-2 block">Cantidad de Preguntas:</label><input type="number" id="num-questions" min="1" value="10" class="w-full p-2 border border-gray-300 rounded-md" /></div>
+          </div>
+          <div class="flex gap-4 mt-6">
+            <button id="start-quiz-btn" class="btn confirm-btn flex-1"><i class='bx bx-play-circle'></i> Iniciar</button>
+            <button id="back-to-excel-btn-menu" class="btn back-btn"><i class='bx bx-upload'></i> Cargar Otro</button>
+          </div>
+        </div>
+        <div id="quiz-container" class="quiz-container-wrapper" style="display:none;"></div>
+      </section>
+
+      <section id="content-resources" class="tab-pane" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-2xl font-bold mb-4">Recursos y Bibliografía</h2>
+            <p class="text-gray-600 mb-6">Una colección de los documentos, guías y herramientas que fundamentan este taller.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-3 text-blue-600">Documentos del Proyecto</h3>
+                    <ul class="list-disc list-inside space-y-2 text-sm">
+                        <li>Proyecto Manuel Belgrano – Estrategias de estudio con IA.pdf</li>
+                        <li>Método Cornell – Guía rápida.pdf</li>
+                        <li>Guía Exprés - Domina la IA en tus Estudios.pdf</li>
+                        <li>Métodos de Toma de Apuntes Activos en Ingeniería.pdf</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3 text-green-600">Enlaces Externos y Herramientas</h3>
+                    <ul class="list-disc list-inside space-y-2 text-sm">
+                        <li><a href="https://lsc.cornell.edu/how-to-study/taking-notes/cornell-note-taking-system/" target="_blank" rel="noopener" class="underline hover:text-green-700">Guía Oficial del Método Cornell</a></li>
+                        <li><a href="https://www.notion.so/" target="_blank" rel="noopener" class="underline hover:text-green-700">Notion</a></li>
+                        <li><a href="https://obsidian.md/" target="_blank" rel="noopener" class="underline hover:text-green-700">Obsidian</a></li>
+                        <li><a href="https://www.onenote.com/" target="_blank" rel="noopener" class="underline hover:text-green-700">Microsoft OneNote</a></li>
+                        <li><a href="https://chatgpt.com/" target="_blank" rel="noopener" class="underline hover:text-green-700">ChatGPT</a></li>
+                        <li><a href="https://notebooklm.google.com/" target="_blank" rel="noopener" class="underline hover:text-green-700">NotebookLM</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  
+  <div id="message-box-overlay" class="message-box-overlay" style="display: none;">
+      <div class="message-box"><p id="message-box-text" class="mb-4"></p><button id="message-box-ok-btn" class="btn confirm-btn">OK</button></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const styles = getComputedStyle(document.documentElement);
+      const textColor = styles.getPropertyValue('--text-dark').trim();
+      const textColorLight = styles.getPropertyValue('--text-light').trim();
+      const borderColor = styles.getPropertyValue('--border-color').trim();
+      const primaryGreen = styles.getPropertyValue('--primary-green').trim();
+      Chart.defaults.color = textColorLight;
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      
+      const APP_DATA = {
+        methods: {
+          cornell: { name: 'Método Cornell', icon: '🗒️', tagline: 'Estructura para el dominio y la revisión activa.', description: 'Divide la página en secciones para notas, pistas/preguntas y un resumen. Ideal para procesar y revisar información.', chartData: [5,1,3,2,5] },
+          sketchnoting: { name: 'Sketchnoting', icon: '🎨', tagline: 'Pensamiento visual y conexiones creativas.', description: 'Combina texto y dibujos para un mapa visual. Excelente para conceptos complejos e ideación.', chartData: [2,5,2,3,3] },
+          mindmap: { name: 'Mapas Mentales', icon: '🧠', tagline: 'Exploración radial de ideas.', description: 'Organiza alrededor de un concepto central. Ideal para brainstorming y planificación.', chartData: [3,5,3,4,3] },
+          zettelkasten: { name: 'Zettelkasten', icon: '🗄️', tagline: 'Tu segundo cerebro interconectado.', description: 'Notas atómicas enlazadas que crecen con el tiempo. Ideal para investigación a largo plazo.', chartData: [4,4,1,5,5] },
+          linear: { name: 'Notas Lineales', icon: '', tagline: 'Claridad y precisión formal.', description: 'Esquemas jerárquicos. Útil para actas, manuales y especificaciones técnicas.', chartData: [4,1,4,3,2] }
+        },
+        chartLabels: ['Estructura','Creatividad','Velocidad','Colaboración','Revisión']
+      };
+
+      const aiTasks = {
+        resumen: "Actúa como un estudiante universitario experto. Lee el texto adjunto sobre [TEMA] y crea un resumen estructurado con el método Cornell. En la columna izquierda, genera 3-5 preguntas clave que el texto responda. En la sección de resumen, sintetiza la idea principal en menos de 50 palabras.",
+        quiz: "Actúa como un profesor asistente. Basado en mis apuntes sobre [TEMA], genera un quiz de 5 preguntas de opción múltiple. Cada pregunta debe tener 4 opciones (1 correcta, 3 distractores plausibles). Al final, proporciona la clave de respuestas con una breve explicación para cada una.",
+        explicacion: "Actúa como un tutor paciente y didáctico. Explica el concepto de [CONCEPTO COMPLEJO] de mis apuntes como si yo tuviera 15 años. Usa una analogía simple y evita la jerga técnica. El objetivo es la comprensión intuitiva."
+      };
+      
+      const mainTabs = document.querySelectorAll('.sidebar nav a, #mobile-tabs a');
+      const panes = document.querySelectorAll('.tab-pane');
+
+      function activateTab(tabId) {
+        document.querySelectorAll('.sidebar nav a, #mobile-tabs a').forEach(a => a.classList.remove('active'));
+        document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(a => a.classList.add('active'));
+        panes.forEach(p => p.style.display = 'none');
+        const target = document.getElementById(`content-${tabId}`);
+        if (target) { 
+            target.style.display = 'block'; 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+      mainTabs.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const tabId = link.dataset.tab;
+          activateTab(tabId);
+          if (tabId === 'methods') {
+            renderMethodCards();
+            activateMethodTab('cornell');
+          }
+        });
+      });
+
+      const methodTabsContainer = document.getElementById('method-tabs');
+      const methodContent = document.getElementById('method-content');
+
+      function renderMethodCards() {
+        methodContent.innerHTML = Object.keys(APP_DATA.methods).map(key => {
+            const m = APP_DATA.methods[key];
+            return `<div id="method-card-${key}" class="method-card p-6 rounded-2xl border border-gray-200" style="display:none;">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h3 class="text-2xl font-bold flex items-center gap-3 mb-2"><span class="text-3xl">${m.icon}</span>${m.name}</h3>
+                <p class="font-semibold text-green-600 mb-4">${m.tagline}</p>
+                <p class="text-gray-700">${m.description}</p>
+              </div>
+              <div class="chart-container"><canvas id="chart-${key}"></canvas></div>
+            </div>
+          </div>`;
+        }).join('');
+        Object.keys(APP_DATA.methods).forEach(renderRadar);
+      }
+
+      function activateMethodTab(methodId) {
+        document.querySelectorAll('.method-tab').forEach(a => a.classList.remove('active'));
+        document.querySelector(`[data-method="${methodId}"]`)?.classList.add('active');
+        document.querySelectorAll('.method-card').forEach(card => card.style.display = 'none');
+        document.getElementById(`method-card-${methodId}`).style.display = 'block';
+      }
+
+      function renderRadar(key) {
+        const m = APP_DATA.methods[key];
+        const ctx = document.getElementById(`chart-${key}`).getContext('2d');
+        new Chart(ctx, {
+          type: 'radar',
+          data: { labels: APP_DATA.chartLabels, datasets: [{ label: m.name, data: m.chartData, backgroundColor: 'rgba(16,185,129,0.1)', borderColor: primaryGreen, pointBackgroundColor: primaryGreen }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { suggestedMin: 0, suggestedMax: 5, grid: { color: borderColor }, pointLabels: { font: { size: 12 }, color: textColor }, ticks: { stepSize: 1, backdropColor: 'transparent', color: textColorLight } } } }
+        });
+      }
+
+      if (methodTabsContainer) {
+        methodTabsContainer.addEventListener('click', e => {
+          e.preventDefault();
+          const link = e.target.closest('a');
+          if (link) { activateMethodTab(link.dataset.method); }
+        });
+      }
+      
+      const taskSelector = document.getElementById('ai-task-selector');
+      const promptDisplay = document.getElementById('prompt-display');
+      taskSelector.addEventListener('click', (e) => {
+          const btn = e.target.closest('button');
+          if (btn) {
+              taskSelector.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              promptDisplay.textContent = aiTasks[btn.dataset.task];
+          }
+      });
+      taskSelector.querySelector('button')?.click();
+      
+      new Chart(document.getElementById('workshopPlanChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Cornell', 'Notion', 'Técnicas Activas', 'IA'],
+            datasets: [{ data: [25, 25, 25, 25], backgroundColor: ['#3b82f6', '#14b8a6', '#f59e0b', '#f43f5e'], borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+      });
+      
+      new Chart(document.getElementById('retentionChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Transcripción Pasiva', 'Apuntes Activos (Cornell)'],
+            datasets: [{ label: 'Retención de Información (%)', data: [25, 70], backgroundColor: ['#ef4444', '#22c55e'], borderRadius: 5 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { max: 100, ticks: { callback: value => value + '%' } } } }
+      });
+
+      new Chart(document.getElementById('aiToolsChart'), {
+        type: 'radar',
+        data: {
+            labels: ['Creatividad', 'Generar Quiz', 'Resumir Texto', 'Basado en Fuentes', 'Citar Fuentes'],
+            datasets: [
+                { label: 'ChatGPT', data: [9, 8, 8, 4, 3], fill: true, backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgb(59, 130, 246)' },
+                { label: 'NotebookLM', data: [5, 6, 8, 10, 10], fill: true, backgroundColor: 'rgba(20, 184, 166, 0.2)', borderColor: 'rgb(20, 184, 166)' }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { r: { suggestedMin: 0, suggestedMax: 10, pointLabels: { font: { size: 11 } } } } }
+      });
+
+      /* --------------------- QUIZ LOGIC (from Quizzi.html) --------------------- */
+      const fileInput = document.getElementById('file-input');
+      const statusMsg = document.getElementById('status-message');
+      const fileLoaderEl = document.getElementById('file-loader');
+      const selectionMenuContainer = document.getElementById('selection-menu-container');
+      const topicListEl = document.getElementById('topic-list');
+      const numQuestionsInput = document.getElementById('num-questions');
+      const startQuizBtn = document.getElementById('start-quiz-btn');
+      const backToExcelBtnMenu = document.getElementById('back-to-excel-btn-menu');
+      const quizContainer = document.getElementById('quiz-container');
+
+      const messageBoxOverlay = document.getElementById('message-box-overlay');
+      const messageBoxText = document.getElementById('message-box-text');
+      const messageBoxOkBtn = document.getElementById('message-box-ok-btn');
+
+      let allQuestions = [], currentQuizQuestions = [], current = 0, selected = [], answered = [], userAns = [];
+      let correctCount = 0, incorrectCount = 0, skippedCount = 0, skippedQuestionsQueue = [];
+      let quizStartTime, timerIntervalId;
+      
+      function showMessage(message) {
+          messageBoxText.textContent = message;
+          messageBoxOverlay.style.display = 'flex';
+          messageBoxOkBtn.onclick = () => messageBoxOverlay.style.display = 'none';
+      }
+
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        statusMsg.textContent = 'Procesando archivo…';
+        const reader = new FileReader();
+        reader.onload = evt => {
+          try {
+            const wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+            const qSheet = wb.Sheets['Preguntas'];
+            const rSheet = wb.Sheets['Respuestas'];
+            if (!qSheet) throw new Error("El libro debe tener una hoja 'Preguntas'.");
+            const qData = XLSX.utils.sheet_to_json(qSheet);
+            const rData = rSheet ? XLSX.utils.sheet_to_json(rSheet) : [];
+            allQuestions = buildQuestions(qData, rData);
+            if (!allQuestions.length) throw new Error('No se encontraron preguntas válidas.');
+            fileLoaderEl.style.display = 'none';
+            showSelectionMenu();
+          } catch (err) {
+            showMessage(`Error: ${err.message}`);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      function buildQuestions(qData, rData) {
+        const expMap = {};
+        rData.forEach(row => {
+          const qTxt = String(row['Pregunta'] || '').trim();
+          if (!qTxt) return;
+          const optLetter = String(row['Opción'] || '').trim().toUpperCase().charAt(0);
+          if (!expMap[qTxt]) expMap[qTxt] = {};
+          expMap[qTxt][optLetter] = { isCorrect: String(row['Es correcta'] || '').trim().toLowerCase().startsWith('s'), text: row['Explicación'] || '' };
+        });
+
+        return qData.map(row => {
+          const qTxt = String(row['Pregunta'] || '').trim();
+          if (!qTxt) return null;
+          const options = {};
+          Object.keys(row).forEach(k => {
+            const m = k.match(/^Opción\s+([A-J])$/i);
+            if (m) {
+              const letter = m[1].toUpperCase();
+              if (row[k] != null && String(row[k]).trim() !== '') options[letter] = String(row[k]);
+            }
+          });
+          const corr = String(row['Opciones correctas'] || '').split(/[ ,;\/]+/).map(s => s.trim().toUpperCase()).filter(l => options[l]);
+          if (Object.keys(options).length === 0 || corr.length === 0) return null;
+          const explanations = {};
+          Object.keys(options).sort().forEach(letter => {
+            const data = expMap[qTxt] ? expMap[qTxt][letter] : null;
+            explanations[letter] = { isCorrect: corr.includes(letter), text: data ? data.text : '' };
+          });
+          return { topic: row['Tópico'] || row['Tema'] || 'General', question: qTxt, options, correctAnswers: corr.sort(), explanations };
+        }).filter(Boolean);
+      }
+
+      function showSelectionMenu() {
+        clearInterval(timerIntervalId);
+        quizContainer.style.display = 'none';
+        selectionMenuContainer.style.display = 'block';
+        topicListEl.innerHTML = '';
+        const uniqueTopics = [...new Set(allQuestions.map(q => q.topic))].sort();
+        uniqueTopics.forEach(topic => {
+          const id = `topic-${topic.replace(/\s+/g, '-')}`;
+          topicListEl.innerHTML += `<label class="flex items-center gap-2 p-2 bg-gray-100 rounded-md cursor-pointer"><input type="checkbox" id="${id}" value="${topic}" checked /><span>${topic}</span></label>`;
+        });
+        numQuestionsInput.value = allQuestions.length;
+        numQuestionsInput.max = allQuestions.length;
+        startQuizBtn.onclick = startQuizFromSelection;
+        backToExcelBtnMenu.onclick = resetToExcelUpload;
+      }
+
+      function startQuizFromSelection() {
+        const selectedTopics = Array.from(document.querySelectorAll('#topic-list input:checked')).map(cb => cb.value);
+        const numQuestions = Math.max(1, parseInt(numQuestionsInput.value, 10));
+        if (selectedTopics.length === 0) { showMessage('Seleccioná al menos un tema.'); return; }
+        let filtered = allQuestions.filter(q => selectedTopics.includes(q.topic));
+        if (!filtered.length) { showMessage('No hay preguntas para los temas elegidos.'); return; }
+        for (let i = filtered.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [filtered[i], filtered[j]] = [filtered[j], filtered[i]]; }
+        currentQuizQuestions = filtered.slice(0, numQuestions);
+        selectionMenuContainer.style.display = 'none';
+        quizContainer.style.display = 'block';
+        startQuiz();
+      }
+
+      function startQuiz() {
+        current = 0; correctCount = 0; incorrectCount = 0; skippedCount = 0;
+        answered = new Array(currentQuizQuestions.length).fill(false);
+        userAns = new Array(currentQuizQuestions.length).fill(null);
+        skippedQuestionsQueue = [];
+        quizStartTime = Date.now();
+        clearInterval(timerIntervalId);
+        timerIntervalId = setInterval(updateTimer, 1000);
+        showQuestion();
+      }
+
+      function updateTimer() {
+        const elapsed = Date.now() - quizStartTime;
+        const mm = String(Math.floor(elapsed / 60000)).padStart(2, '0');
+        const ss = String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0');
+        const el = document.getElementById('timer-display');
+        if (el) el.textContent = `Tiempo: ${mm}:${ss}`;
+      }
+
+      function showQuestion() {
+        if (current >= currentQuizQuestions.length) {
+          if (skippedQuestionsQueue.length) {
+            const startIdx = currentQuizQuestions.length;
+            currentQuizQuestions.push(...skippedQuestionsQueue);
+            answered.push(...new Array(skippedQuestionsQueue.length).fill(false));
+            userAns.push(...new Array(skippedQuestionsQueue.length).fill(null));
+            skippedQuestionsQueue = [];
+            current = startIdx;
+          } else { showResults(); return; }
+        }
+        const q = currentQuizQuestions[current];
+        quizContainer.innerHTML = `<div class="text-center mb-4"><div class="inline-block bg-blue-500 text-white text-sm font-bold px-3 py-1 rounded-full">${q.topic}</div><div id="timer-display" class="font-bold mt-2"></div></div>
+          <div class="mb-4 bg-gray-200 rounded-full h-2.5"><div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+          <h3 class="text-lg font-bold mb-4">${current + 1}. ${q.question}</h3>
+          <div id="options-area" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div><div id="feedback-area" class="mt-4"></div>
+          <div class="flex flex-wrap gap-2 justify-between mt-6 border-t pt-4">
+            <button id="skip-btn" class="btn skip-btn"><i class='bx bx-fast-forward'></i> Saltar</button>
+            <button id="confirm-btn" class="btn confirm-btn" disabled><i class='bx bx-check-double'></i> Confirmar</button>
+            <button id="next-btn" class="btn next-btn" style="display:none;"><i class='bx bx-log-in-circle'></i> Siguiente</button>
+          </div>`;
+        selected = [];
+        const optArea = document.getElementById('options-area');
+        Object.keys(q.options).sort().forEach(letter => {
+            const div = document.createElement('div');
+            div.className = 'option p-4 rounded-lg cursor-pointer flex items-center gap-4';
+            div.dataset.key = letter;
+            div.innerHTML = `<strong class="text-blue-600">${letter}</strong><span>${q.options[letter]}</span>`;
+            div.addEventListener('click', () => toggleSelect(div, letter));
+            optArea.appendChild(div);
+        });
+        document.getElementById('confirm-btn').onclick = confirmAnswer;
+        document.getElementById('next-btn').onclick = () => { current++; showQuestion(); };
+        document.getElementById('skip-btn').onclick = skipQuestion;
+        updateProgress(); updateTimer();
+      }
+
+      function toggleSelect(div, key) {
+        const i = selected.indexOf(key);
+        if (i > -1) { selected.splice(i, 1); div.classList.remove('selected'); } 
+        else { selected.push(key); div.classList.add('selected'); }
+        document.getElementById('confirm-btn').disabled = selected.length === 0;
+      }
+      
+      function skipQuestion() {
+        skippedQuestionsQueue.push(currentQuizQuestions[current]);
+        skippedCount++; answered[current] = true; userAns[current] = [];
+        current++; showQuestion();
+      }
+
+      async function confirmAnswer() {
+        const q = currentQuizQuestions[current];
+        userAns[current] = [...selected].sort(); answered[current] = true;
+        const isCorrect = userAns[current].join(',') === q.correctAnswers.join(',');
+        isCorrect ? correctCount++ : incorrectCount++;
+        document.querySelectorAll('.option').forEach(div => {
+            const letter = div.dataset.key;
+            div.classList.add('opacity-50', 'pointer-events-none');
+            if (q.correctAnswers.includes(letter)) div.classList.add('correct');
+            else if (selected.includes(letter)) div.classList.add('incorrect');
+        });
+        document.getElementById('confirm-btn').style.display = 'none';
+        document.getElementById('skip-btn').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'inline-flex';
+        updateProgress();
+
+        const fb = document.getElementById('feedback-area');
+        const aiExplainBtn = document.createElement('button');
+        aiExplainBtn.className = 'btn ai-explain-btn w-full mt-4';
+        aiExplainBtn.innerHTML = `<i class='bx bx-brain'></i> Generar Explicación con IA`;
+        fb.appendChild(aiExplainBtn);
+        aiExplainBtn.onclick = async () => {
+            aiExplainBtn.innerHTML = `<span class="loading-spinner"></span> Cargando...`;
+            aiExplainBtn.disabled = true;
+            const prompt = `Explica por qué la respuesta correcta a la pregunta "${q.question}" es "${q.correctAnswers.join(', ')}", considerando las opciones. Sé claro y conciso.`;
+            let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const result = await response.json();
+                const text = result.candidates[0].content.parts[0].text.replace(/\n/g, '<br>');
+                aiExplainBtn.insertAdjacentHTML('afterend', `<div class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg text-sm">${text}</div>`);
+                aiExplainBtn.style.display = 'none';
+            } catch (e) {
+                aiExplainBtn.innerHTML = 'Error al generar';
+                console.error(e);
+            }
+        };
+      }
+
+      function updateProgress() {
+        const done = answered.filter(Boolean).length;
+        const total = currentQuizQuestions.length;
+        document.getElementById('progress-bar').style.width = `${(done / total) * 100}%`;
+      }
+
+      function showResults() {
+        clearInterval(timerIntervalId);
+        let html = `<div class="text-center"><h2 class="text-2xl font-bold">Resultados Finales</h2>
+            <div class="flex justify-center gap-4 my-4">
+                <span class="score-box correct">✓ ${correctCount}</span>
+                <span class="score-box incorrect">✗ ${incorrectCount}</span>
+                <span class="score-box skipped">» ${skippedCount}</span>
+            </div></div>`;
+        currentQuizQuestions.forEach((q, i) => {
+            const u = userAns[i];
+            const isSkipped = Array.isArray(u) && u.length === 0;
+            const isCorrect = !isSkipped && u.join(',') === q.correctAnswers.join(',');
+            html += `<div class="p-4 border-t mt-4"><h4 class="font-bold">${i + 1}. ${q.question}</h4>
+                <p>Tu respuesta: <span class="${isSkipped ? 'text-yellow-600' : isCorrect ? 'text-green-600' : 'text-red-600'} font-semibold">${isSkipped ? 'Saltada' : u.join(', ')}</span></p>
+                <p>Correcta: <span class="text-green-600 font-semibold">${q.correctAnswers.join(', ')}</span></p></div>`;
+        });
+        html += `<div class="flex gap-4 mt-6">
+            <button id="back-to-menu-btn-results" class="btn back-btn flex-1"><i class='bx bx-revision'></i> Repetir</button>
+            <button id="back-to-excel-btn-results" class="btn back-btn"><i class='bx bx-upload'></i> Cargar Otro</button>
+        </div>`;
+        quizContainer.innerHTML = html;
+        document.getElementById('back-to-menu-btn-results').onclick = showSelectionMenu;
+        document.getElementById('back-to-excel-btn-results').onclick = resetToExcelUpload;
+      }
+      
+      function resetToExcelUpload() {
+          fileLoaderEl.style.display = 'block';
+          selectionMenuContainer.style.display = 'none';
+          quizContainer.style.display = 'none';
+          fileInput.value = '';
+      }
+
+      activateTab('intro');
+    });
+  </script>
+</body>
+</html>

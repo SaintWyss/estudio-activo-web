@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guía Interactiva de Apuntes para Ingenieros · v3.1</title>
+  <meta name="description" content="Taller práctico: Método Cornell, organización en Notion, técnicas de estudio activo y IA aplicada para estudiantes de ingeniería." />
+  <meta name="theme-color" content="#00bfa6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+  <style>
+    :root{
+      --bg: #f9fafb; --card:#fff; --muted:#6b7280; --fg:#111827; --border:#e5e7eb;
+      --primary:#00bfa6; --primary-600:#009e8a; --accent:#7c3aed;
+    }
+    :root[color-scheme="dark"], @media (prefers-color-scheme: dark){
+      --bg:#0b1020; --card:#0f162a; --muted:#a0aec0; --fg:#e5e7eb; --border:#24324a;
+      --primary:#2dd4bf; --primary-600:#14b8a6; --accent:#a78bfa;
+    }
+    html,body{height:100%}
+    body{font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji','Segoe UI Emoji'; background:var(--bg); color:var(--fg); margin:0; display:flex}
+    .sidebar{width:280px;background:var(--card); border-right:1px solid var(--border); padding:24px; position:sticky; top:0; height:100vh; overflow:auto}
+    .sidebar a{display:flex; gap:10px; padding:10px 12px; margin-bottom:8px; border-radius:12px; color:var(--fg); text-decoration:none; align-items:center}
+    .sidebar a.active{background:var(--primary); color:#00130f; font-weight:600}
+    .main{flex:1; overflow:auto}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:0 10px 24px rgba(2, 6, 23, .08);}
+    .tab{border-bottom:2px solid transparent}
+    .tab.active{border-color:var(--primary); color:var(--primary)}
+    .btn{display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:.75rem; border:1px solid var(--border)}
+    .btn-primary{background:var(--primary); border-color:var(--primary); color:#002b24}
+    .btn-ghost{background:transparent}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; border:1px solid var(--border); border-bottom-width:3px; padding:.15rem .4rem; border-radius:.375rem}
+    .skip-link{position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden}
+    .skip-link:focus{left:1rem; top:1rem; width:auto; height:auto; z-index:50; background:#fff; padding:.5rem .75rem; border-radius:.5rem}
+    .chart-container{position:relative; width:100%; max-width:560px; height:320px; margin-inline:auto}
+    .no-scrollbar::-webkit-scrollbar{display:none}
+    .no-scrollbar{-ms-overflow-style:none; scrollbar-width:none}
+    @media (max-width: 1024px){ .sidebar{display:none} }
+    @media print{ .sidebar, .mobile-tabs, .actions, #quiz, .skip-link{ display:none !important } .card{box-shadow:none} body{background:#fff; color:#000} }
+  </style>
+</head>
+<body>
+  <a href="#contenido" class="skip-link">Saltar al contenido</a>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" aria-label="Navegación principal">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="font-[Poppins] text-xl font-bold text-[var(--accent)]">Guía de Apuntes</h1>
+      <button id="themeToggle" class="btn btn-ghost" aria-pressed="false" aria-label="Cambiar tema"><i class='bx bxs-moon'></i></button>
+    </div>
+    <nav id="toc" class="no-scrollbar">
+      <a href="#intro" class="active"><i class='bx bxs-home'></i> Introducción</a>
+      <a href="#workflow"><i class='bx bxs-sitemap'></i> Flujo de Trabajo</a>
+      <a href="#activos"><i class='bx bxs-brain'></i> Activos vs Pasivos</a>
+      <a href="#methods"><i class='bx bxs-book-content'></i> Métodos</a>
+      <a href="#techniques"><i class='bx bxs-flask'></i> Técnicas Activas</a>
+      <a href="#organization"><i class='bx bxs-spreadsheet'></i> Organización</a>
+      <a href="#ai"><i class='bx bxs-bot'></i> IA aplicada</a>
+      <a href="#quiz"><i class='bx bxs-help-circle'></i> Quiz</a>
+      <a href="#resources"><i class='bx bxs-archive'></i> Recursos</a>
+    </nav>
+    <div class="mt-6">
+      <label class="block text-sm mb-1" for="search">Buscar sección</label>
+      <div class="relative">
+        <input id="search" class="w-full rounded-xl border border-[var(--border)] bg-transparent py-2 pl-9 pr-3 outline-none focus:ring-2 focus:ring-[var(--primary)]" type="search" placeholder="Cornell, Notion, Anki…" />
+        <i class='bx bx-search absolute left-2.5 top-2.5 text-[var(--muted)]'></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main" id="contenido">
+    <!-- Header móvil -->
+    <header class="mobile-tabs sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-white/70 bg-white/90 dark:bg-[var(--card)]/80 border-b border-[var(--border)] lg:hidden">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <button id="openTOC" class="btn" aria-controls="mobileMenu" aria-expanded="false"><i class='bx bx-menu'></i> Menú</button>
+        <nav id="mobileMenu" class="no-scrollbar overflow-x-auto whitespace-nowrap flex-1">
+          <a class="tab active px-2" href="#intro">Intro</a>
+          <a class="tab px-2" href="#workflow">Flujo</a>
+          <a class="tab px-2" href="#activos">Activos</a>
+          <a class="tab px-2" href="#methods">Métodos</a>
+          <a class="tab px-2" href="#techniques">Técnicas</a>
+          <a class="tab px-2" href="#organization">Org.</a>
+          <a class="tab px-2" href="#ai">IA</a>
+          <a class="tab px-2" href="#quiz">Quiz</a>
+          <a class="tab px-2" href="#resources">Recursos</a>
+        </nav>
+        <button id="themeToggle2" class="btn btn-ghost" aria-label="Cambiar tema"><i class='bx bxs-moon'></i></button>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-8 space-y-10">
+      <!-- Intro -->
+      <section id="intro" class="card p-6 md:p-8">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-2">Estrategias de Estudio con IA para Ingeniería</h2>
+            <p class="text-[var(--muted)] max-w-2xl">Taller práctico de 2 horas. Apuntes activos, Notion, técnicas de estudio y IA aplicada. Diseñado para la Beca Manuel Belgrano · UTN FRRe.</p>
+          </div>
+          <div class="actions flex gap-2">
+            <a class="btn" href="#resources"><i class='bx bx-download'></i> Materiales</a>
+            <button class="btn btn-primary" onclick="window.print()"><i class='bx bx-printer'></i> Imprimir</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div class="card p-5">
+            <h3 class="font-semibold mb-2">Plan del Taller</h3>
+            <div class="chart-container"><canvas id="chartPlan" role="img" aria-label="Distribución de tiempo por bloque del taller"></canvas></div>
+          </div>
+          <div class="card p-5">
+            <h3 class="font-semibold mb-2">Objetivos</h3>
+            <ul class="list-disc list-inside text-[var(--muted)]">
+              <li>Aplicar Cornell en clase y postclase.</li>
+              <li>Montar un segundo cerebro en Notion.</li>
+              <li>Estudiar con Active Recall + Espaciado.</li>
+              <li>Usar IA para resúmenes, flashcards y simulacros.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Flujo de trabajo -->
+      <section id="workflow" class="card p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-2">Flujo de Trabajo</h2>
+        <p class="text-[var(--muted)] mb-6">Analógico → Digital → IA. Pensado para STEM.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-5 rounded-xl border border-[var(--border)]"><div class="text-4xl">✍️</div><h3 class="font-semibold mt-2">1. Captura Cornell</h3><p class="text-sm text-[var(--muted)]">Síntesis durante la clase. Preguntas y resumen postclase.</p></div>
+          <div class="p-5 rounded-xl border border-[var(--border)]"><div class="text-4xl">🧠</div><h3 class="font-semibold mt-2">2. Segundo Cerebro</h3><p class="text-sm text-[var(--muted)]">Notion con bases de Materias, Tareas y Apuntes enlazados.</p></div>
+          <div class="p-5 rounded-xl border border-[var(--border)]"><div class="text-4xl">🤖</div><h3 class="font-semibold mt-2">3. Estudio Activo + IA</h3><p class="text-sm text-[var(--muted)]">Active Recall, Feynman y Anki con apoyo de ChatGPT/NotebookLM.</p></div>
+        </div>
+      </section>
+
+      <!-- Activos vs Pasivos -->
+      <section id="activos" class="card p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-2">Apuntes: Pasivo vs Activo</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <div class="p-5 rounded-xl border border-red-200"><h3 class="font-semibold text-red-600 mb-2">Pasivo</h3><ul class="list-disc list-inside text-[var(--muted)] space-y-1"><li>Transcripción literal.</li><li>Baja retención.</li><li>Falsa sensación de progreso.</li></ul></div>
+          <div class="p-5 rounded-xl border border-emerald-200"><h3 class="font-semibold text-emerald-600 mb-2">Activo</h3><ul class="list-disc list-inside text-[var(--muted)] space-y-1"><li>Selección + reformulación.</li><li>Preguntas y conexiones.</li><li>Alta retención.</li></ul></div>
+        </div>
+        <div class="chart-container mt-6"><canvas id="chartRetention" role="img" aria-label="Comparación de retención entre métodos"></canvas></div>
+      </section>
+
+      <!-- Métodos -->
+      <section id="methods" class="card p-6 md:p-8">
+        <div class="flex items-center justify-between gap-4 mb-3">
+          <h2 class="text-2xl font-bold">Métodos de Apuntes</h2>
+          <div class="text-sm text-[var(--muted)]">Tip: <span class="kbd">/</span> en Notion para crear plantillas Cornell.</div>
+        </div>
+        <nav class="no-scrollbar overflow-x-auto border-b border-[var(--border)] flex gap-4" id="methodTabs" aria-label="Pestañas de métodos">
+          <button class="tab py-3 px-1 active" data-method="cornell">Cornell</button>
+          <button class="tab py-3 px-1" data-method="outline">Esquema</button>
+          <button class="tab py-3 px-1" data-method="mindmap">Mapa mental</button>
+          <button class="tab py-3 px-1" data-method="concept">Mapa conceptual</button>
+          <button class="tab py-3 px-1" data-method="zettel">Zettelkasten</button>
+        </nav>
+        <div id="methodContent" class="mt-4"></div>
+      </section>
+
+      <!-- Técnicas activas -->
+      <section id="techniques" class="card p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-2">Técnicas de Estudio Activo</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <article>
+            <h3 class="font-semibold">Feynman</h3>
+            <ol class="list-decimal list-inside text-[var(--muted)] text-sm space-y-1">
+              <li>Elegí concepto → explicalo en 8–12 líneas como a un novato.</li>
+              <li>Marcá lagunas → volvé a tus notas.</li>
+              <li>Reescribí + agregá analogía UTN (p.ej., circuito de agua).</li>
+            </ol>
+            <details class="mt-2 text-xs text-[var(--muted)]"><summary class="cursor-pointer font-medium">Plantilla</summary>
+              <pre class="overflow-auto p-2 rounded bg-[#0b1020] text-[#e5e7eb]">Tema: ______
+Explicación simple:
+- …
+Analogía:
+- …
+3 preguntas de chequeo:
+1) … 2) … 3) …</pre>
+            </details>
+          </article>
+
+          <article>
+            <h3 class="font-semibold">Active Recall + Espaciado</h3>
+            <ul class="list-disc list-inside text-[var(--muted)] text-sm space-y-1">
+              <li>Sesión: 25' estudio → 5' test sin mirar → correción.</li>
+              <li>Plan 0–2–7–15 días para cada tema.</li>
+              <li>Usá preguntas de columna izquierda Cornell.</li>
+            </ul>
+            <details class="mt-2 text-xs text-[var(--muted)]"><summary class="cursor-pointer font-medium">Checklist</summary>
+              <pre class="overflow-auto p-2 rounded bg-[#0b1020] text-[#e5e7eb]">□ Cerré apuntes y me autoevalué
+□ Anoté errores comunes
+□ Programé siguiente repaso</pre>
+            </details>
+          </article>
+
+          <article>
+            <h3 class="font-semibold">Flashcards (Anki)</h3>
+            <ul class="list-disc list-inside text-[var(--muted)] text-sm space-y-1">
+              <li>Una idea por tarjeta. Preferí formato <em>cloze</em>.</li>
+              <li>Mezclá teoría (definiciones) y procedimientos.</li>
+              <li>Etiquetá por materia/unidad.</li>
+            </ul>
+            <details class="mt-2 text-xs text-[var(--muted)]"><summary class="cursor-pointer font-medium">Ejemplos cloze</summary>
+              <pre class="overflow-auto p-2 rounded bg-[#0b1020] text-[#e5e7eb]">La ley de Ohm es {{c1::V=I·R}}.
+La derivada de ln(x) es {{c1::1/x}}.
+OSI (capas 4→7): {{c1::Transporte}}, {{c2::Sesión}}, {{c3::Presentación}}, {{c4::Aplicación}}.</pre>
+            </details>
+          </article>
+        </div>
+        <div class="chart-container mt-6"><canvas id="chartActiveMix" role="img" aria-label="Combinación recomendada de técnicas de estudio activo"></canvas></div>
+      </section>
+
+      <!-- Organización Notion -->
+      <section id="organization" class="card p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-2">Segundo Cerebro en Notion</h2>
+        <p class="text-[var(--muted)] mb-4">Sistema completo con tres bases de datos enlazadas, plantillas y automatizaciones mínimas. Copiá y seguí los pasos.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <article class="p-5 rounded-xl border border-[var(--border)]">
+            <h3 class="font-semibold">1) Materias (DB)</h3>
+            <p class="text-sm text-[var(--muted)]">Propiedades recomendadas:</p>
+            <ul class="list-disc list-inside text-sm text-[var(--muted)] space-y-1">
+              <li><strong>Título</strong> (Título)</li>
+              <li><strong>Año</strong> (Número)</li>
+              <li><strong>Docente</strong> (Texto)</li>
+              <li><strong>Dificultad</strong> (Selección: Baja/Media/Alta)</li>
+              <li><strong>Estado</strong> (Selección: Cursando/Aprobada/Pendiente)</li>
+              <li><strong>Plan</strong> (Archivo/URL)</li>
+            </ul>
+          </article>
+
+          <article class="p-5 rounded-xl border border-[var(--border)]">
+            <h3 class="font-semibold">2) Tareas & Entregas (DB)</h3>
+            <ul class="list-disc list-inside text-sm text-[var(--muted)] space-y-1">
+              <li><strong>Título</strong> (Título)</li>
+              <li><strong>Tipo</strong> (Selección: TP/Parcial/Final/Práctica)</li>
+              <li><strong>Fecha</strong> (Fecha)</li>
+              <li><strong>Estado</strong> (Selección: Pendiente/En curso/Hecho)</li>
+              <li><strong>Materia</strong> (Relación → Materias)</li>
+              <li><strong>Días restantes</strong> (Fórmula)</li>
+            </ul>
+            <details class="mt-2 text-xs text-[var(--muted)]"><summary class="cursor-pointer font-medium">Fórmula Días restantes</summary>
+              <pre class="overflow-auto p-2 rounded bg-[#0b1020] text-[#e5e7eb]">dateBetween(prop("Fecha"), now(), "days")</pre>
+            </details>
+          </article>
+
+          <article class="p-5 rounded-xl border border-[var(--border)]">
+            <h3 class="font-semibold">3) Apuntes de Clase (DB)</h3>
+            <ul class="list-disc list-inside text-sm text-[var(--muted)] space-y-1">
+              <li><strong>Título</strong> (Título) ej. "Clase 03 – Cinemática"</li>
+              <li><strong>Fecha</strong> (Fecha)</li>
+              <li><strong>Materia</strong> (Relación → Materias)</li>
+              <li><strong>Estado</strong> (Selección: Borrador/En revisión/Listo)</li>
+              <li><strong>Resumen</strong> (Texto)</li>
+              <li><strong>Preguntas clave</strong> (Texto largo)</li>
+            </ul>
+            <details class="mt-2 text-xs text-[var(--muted)]"><summary class="cursor-pointer font-medium">Plantilla Cornell para Apuntes</summary>
+              <pre class="overflow-auto p-2 rounded bg-[#0b1020] text-[#e5e7eb]">## Notas (derecha)
+- …
+
+## Pistas/Preguntas (izquierda)
+- ¿…?
+
+## Resumen (5 líneas)
+- …</pre>
+            </details>
+          </article>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <article class="p-5 rounded-xl border border-[var(--border)]">
+            <h3 class="font-semibold">Relaciones y Rollups</h3>
+            <ol class="list-decimal list-inside text-sm text-[var(--muted)] space-y-1">
+              <li>En <strong>Tareas</strong>, creá la Relación <em>Materia</em> → <em>Materias</em>.</li>
+              <li>En <strong>Materias</strong>, añadí un <em>Rollup</em> <strong>Próxima entrega</strong> → Relación Tareas → <em>Fecha</em> → <em>Mínimo</em>.</li>
+              <li>En <strong>Materias</strong>, añadí un <em>Rollup</em> <strong>Tareas abiertas</strong> → Relación Tareas → <em>Estado</em> → <em>Contar</em> con filtro ≠ "Hecho".</li>
+            </ol>
+          </article>
+
+          <article class="p-5 rounded-xl border border-[var(--border)]">
+            <h3 class="font-semibold">Vistas recomendadas</h3>
+            <ul class="list-disc list-inside text-sm text-[var(--muted)] space-y-1">
+              <li><strong>Tareas · Calendario</strong>: vista por mes, colorear por Tipo.</li>
+              <li><strong>Tareas · Hoy</strong>: filtro Fecha = hoy OR Días restantes ≤ 2.</li>
+              <li><strong>Apuntes · Materia X</strong>: filtro Relación → Materia contiene X.</li>
+              <li><strong>Materias · Dashboard</strong>: tabla con Próxima entrega y Tareas abiertas.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-3 text-sm">
+          <a class="btn" href="https://www.notion.so/templates" target="_blank" rel="noopener">Plantillas Notion</a>
+          <a class="btn" href="https://www.notion.so/help/guides/linked-databases" target="_blank" rel="noopener">Vistas enlazadas</a>
+          <a class="btn" href="https://www.notion.so/help/relations-and-rollups" target="_blank" rel="noopener">Relaciones y rollups</a>
+        </div>
+
+        <details class="mt-6">
+          <summary class="cursor-pointer font-medium">CSV de ejemplo para importar (Materias, Tareas)</summary>
+          <div class="grid md:grid-cols-2 gap-4 mt-3 text-xs">
+            <div>
+              <h4 class="font-semibold mb-1">Materias.csv</h4>
+              <pre class="overflow-auto p-2 rounded bg-[#0b1020] text-[#e5e7eb]">Título,Año,Docente,Dificultad,Estado
+Análisis I,1,Gómez,Alta,Cursando
+Física I,1,Peralta,Media,Cursando
+Algoritmos,1,Suárez,Alta,Cursando</pre>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-1">Tareas.csv</h4>
+              <pre class="overflow-auto p-2 rounded bg-[#0b1020] text-[#e5e7eb]">Título,Tipo,Fecha,Estado,Materia
+TP1 – Cinemática,TP,2025-04-18,Pendiente,Física I
+Parcial 1 – Límites,Parcial,2025-05-06,Pendiente,Análisis I
+Práctica – Bucles,Práctica,2025-04-22,En curso,Algoritmos</pre>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- IA aplicada -->
+      <section id="ai" class="card p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-2">IA aplicada al Estudio</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-semibold mb-2">Asistente de Prompts</h3>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <button class="btn" data-prompt="resumen">Resumen Cornell</button>
+              <button class="btn" data-prompt="flashcards">Flashcards Anki</button>
+              <button class="btn" data-prompt="examen">Simulacro examen</button>
+              <button class="btn" data-prompt="feynman">Explicar simple</button>
+              <button class="btn" data-prompt="notion">Auditoría de apuntes</button>
+              <button class="btn" data-prompt="planner">Plan de espaciado</button>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0b1020] text-[#e5e7eb] text-sm font-mono" id="promptBox" aria-live="polite"></div>
+            <p class="text-xs text-[var(--muted)] mt-2">Fórmula: <code>ROL + TAREA + CONTEXTO + FORMATO</code>. Ajustá el nivel: secundario→UTN→experto.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold mb-2">¿Cuándo usar qué?</h3>
+            <div class="chart-container"><canvas id="chartIATools" role="img" aria-label="Comparación de ChatGPT y NotebookLM por tarea"></canvas></div>
+            <ul class="mt-3 text-xs text-[var(--muted)] list-disc list-inside">
+              <li><strong>ChatGPT:</strong> explicación, ejemplos, generación de preguntas.</li>
+              <li><strong>NotebookLM:</strong> respuestas sobre tus PDFs con citas y audio overview.</li>
+              <li><strong>Notion AI:</strong> resúmenes y extracción de preguntas dentro de tus páginas.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quiz -->
+      <section id="quiz" class="card p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-2">Autoevaluación</h2>
+        <div id="quizLoader" class="border border-[var(--border)] rounded-xl p-6 text-center">
+          <p class="text-[var(--muted)]">Subí un .xlsx con columnas: <em>pregunta, a, b, c, d, correcta, explicación, tema</em>.</p>
+          <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden" />
+          <label for="fileInput" class="btn btn-primary cursor-pointer mt-3"><i class='bx bx-upload' ></i> Seleccionar archivo</label>
+          <div id="quizStatus" class="mt-3 text-sm"></div>
+        </div>
+        <div id="quizContainer" class="mt-6"></div>
+      </section>
+
+      <!-- Recursos -->
+      <section id="resources" class="card p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-2">Recursos</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-semibold mb-1">Documentos del proyecto</h3>
+            <ul class="list-disc list-inside text-[var(--muted)] text-sm">
+              <li>Método Cornell – Guía rápida (PDF)</li>
+              <li>Guía IA para estudiar (PDF)</li>
+              <li>Métodos de toma de apuntes activos (PDF)</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-semibold mb-1">Herramientas</h3>
+            <ul class="list-disc list-inside text-[var(--muted)] text-sm">
+              <li><a class="underline" href="https://lsc.cornell.edu/how-to-study/taking-notes/cornell-note-taking-system/" target="_blank" rel="noopener">Cornell University</a></li>
+              <li><a class="underline" href="https://www.notion.so/" target="_blank" rel="noopener">Notion</a> · <a class="underline" href="https://ankiweb.net/" target="_blank" rel="noopener">Anki</a> · <a class="underline" href="https://cmap.ihmc.us/" target="_blank" rel="noopener">CmapTools</a></li>
+              <li><a class="underline" href="https://notebooklm.google.com/" target="_blank" rel="noopener">NotebookLM</a> · <a class="underline" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ciclo de estudio semanal -->
+      <section id="weekly" class="card p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-2">Ciclo de Estudio Semanal</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-[var(--muted)]">
+          <div>
+            <h3 class="font-semibold mb-1">Rutina sugerida</h3>
+            <ul class="list-disc list-inside space-y-1">
+              <li><strong>Lunes:</strong> Cornell de clases + digitalización en Notion.</li>
+              <li><strong>Martes:</strong> Feynman de conceptos críticos.</li>
+              <li><strong>Miércoles:</strong> Active Recall (preguntas Cornell) 0–2 días.</li>
+              <li><strong>Jueves:</strong> Crear 10–20 flashcards nuevas.</li>
+              <li><strong>Viernes:</strong> Simulacro corto con preguntas IA.</li>
+              <li><strong>Sábado:</strong> Repaso espaciado 7 días + mapas.</li>
+              <li><strong>Domingo:</strong> Planificar semana y próximas entregas.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-semibold mb-1">Tablero mínimo (semanal)</h3>
+            <ul class="list-disc list-inside space-y-1">
+              <li>Notion: vista de <em>Tareas · Hoy</em> + <em>Esta semana</em>.</li>
+              <li>Apuntes: páginas de clase con checklist de dudas resueltas.</li>
+              <li>Anki: sesión diaria 10–20 min (móvil).</li>
+              <li>IA: generar 5 preguntas nuevas por materia.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-4 md:px-8 pb-10 text-xs text-[var(--muted)]">
+      <hr class="border-[var(--border)] my-6" />
+      <p>Proyecto para Becas Manuel Belgrano · UTN FRRe. Última revisión: Oct 2025.</p>
+    </footer>
+  </div>
+
+  <script>
+  // --- Preferencias de tema ---
+  (function(){
+    const root = document.documentElement;
+    const apply = (v)=>{ root.setAttribute('color-scheme', v==='dark'?'dark':'light'); localStorage.setItem('theme', v); };
+    const current = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
+    apply(current);
+    const toggle = ()=> apply(root.getAttribute('color-scheme')==='dark'?'light':'dark');
+    for(const id of ['themeToggle','themeToggle2']){ const b=document.getElementById(id); if(b){ b.addEventListener('click', toggle); } }
+  })();
+
+  // --- Navegación activa y búsqueda ---
+  (function(){
+    const links = Array.from(document.querySelectorAll('#toc a'));
+    const makeActive = (id)=>{
+      for(const a of links){ a.classList.toggle('active', a.getAttribute('href') === '#'+id); }
+    };
+    const observer = new IntersectionObserver((entries)=>{
+      const visible = entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio - a.intersectionRatio)[0];
+      if(visible){ makeActive(visible.target.id); }
+    }, {rootMargin:'-40% 0px -55% 0px', threshold:[0, .25, .5, .75, 1]});
+    for(const sec of ['intro','workflow','activos','methods','techniques','organization','ai','quiz','resources']){
+      const el = document.getElementById(sec); if(el) observer.observe(el);
+    }
+    // móvil abre TOC
+    const btn = document.getElementById('openTOC'); const menu = document.getElementById('mobileMenu');
+    if(btn && menu){ btn.addEventListener('click', ()=>{ menu.classList.toggle('hidden'); btn.setAttribute('aria-expanded', menu.classList.contains('hidden')? 'false':'true'); }); }
+    // búsqueda simple por anclas
+    const input = document.getElementById('search');
+    if(input){ input.addEventListener('input', (e)=>{
+      const q = e.target.value.toLowerCase();
+      const hit = links.find(a=> a.textContent.toLowerCase().includes(q));
+      if(hit && q.length>1){ window.location.hash = hit.getAttribute('href'); }
+    });}
+  })();
+
+  // --- Contenido dinámico de Métodos ---
+  (function(){
+    const content = document.getElementById('methodContent');
+    const tabs = document.getElementById('methodTabs');
+    const blocks = {
+      cornell:`<div class='grid md:grid-cols-2 gap-5'>
+        <div><h3 class='font-semibold mb-2'>Plantilla 3 zonas</h3>
+        <ol class='list-decimal list-inside text-[var(--muted)] space-y-1'>
+          <li>Notas (derecha) en clase con abreviaturas.</li>
+          <li>Pistas (izquierda) en 24h: preguntas y palabras clave.</li>
+          <li>Resumen (pie): 3–5 líneas en tus palabras.</li>
+        </ol>
+        <p class='text-sm mt-3'>Repaso: cubrí la columna de notas y respondé las preguntas.</p>
+        </div>
+        <div class='chart-container'><canvas id='chartCornell'></canvas></div>
+      </div>`,
+      outline:`<div><h3 class='font-semibold mb-2'>Esquema jerárquico</h3><p class='text-[var(--muted)]'>Ideal para materias con estructura lógica: listas con niveles, numeración y sangrías.</p></div>`,
+      mindmap:`<div><h3 class='font-semibold mb-2'>Mapa Mental</h3><p class='text-[var(--muted)]'>Centro → ramas → subramas. Útil para brainstorming y visión global.</p></div>`,
+      concept:`<div><h3 class='font-semibold mb-2'>Mapa Conceptual</h3><p class='text-[var(--muted)]'>Nodos + enlaces etiquetados ("causa", "compuesto por"). Revela relaciones formales.</p></div>`,
+      zettel:`<div><h3 class='font-semibold mb-2'>Zettelkasten</h3><p class='text-[var(--muted)]'>Notas atómicas con enlaces bidireccionales. Excelente para investigación.</p></div>`
+    };
+    function render(key){ content.innerHTML = blocks[key]; if(key==='cornell'){ setTimeout(drawCornell, 50); } }
+    tabs?.addEventListener('click', (e)=>{
+      const b = e.target.closest('[data-method]'); if(!b) return; e.preventDefault();
+      for(const t of tabs.querySelectorAll('.tab')) t.classList.toggle('active', t===b);
+      render(b.dataset.method);
+    });
+    render('cornell');
+  })();
+
+  // --- Charts ---
+  function baseChart(el,type,data,opts={}){
+    const ctx = document.getElementById(el); if(!ctx) return;
+    const o = {
+      type, data,
+      options: Object.assign({
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:14 } }, tooltip:{ intersect:false } },
+        scales:{ y:{ beginAtZero:true, grid:{ color:'rgba(148,163,184,.2)' } }, x:{ grid:{ display:false } } }
+      },opts)
+    };
+    return new Chart(ctx, o);
+  }
+  function drawCornell(){
+    baseChart('chartCornell','bar',{
+      labels:['Transcripción','Lineal','Cornell'],
+      datasets:[{ label:'Retención (%)', data:[20,35,65], backgroundColor:['#ef44441a','#3b82f61a','#10b981'], borderColor:['#ef4444','#3b82f6','#065f46'], borderWidth:2 }]
+    }, { scales:{ y:{ max:100, ticks:{ callback:v=>v+'%' } } }, plugins:{ legend:{ display:false } } });
+  }
+  window.addEventListener('load', ()=>{
+    baseChart('chartPlan','pie',{
+      labels:['Cornell','Notion','Técnicas','IA'],
+      datasets:[{ data:[30,30,30,30], backgroundColor:['#10b981','#3b82f6','#f59e0b','#a78bfa'] }]
+    });
+    baseChart('chartRetention','bar',{
+      labels:['Pasivo','Lineal','Cornell'],
+      datasets:[{ label:'Retención (%)', data:[20,35,65], backgroundColor:['#ef44441a','#3b82f61a','#10b981'], borderColor:['#ef4444','#3b82f6','#065f46'], borderWidth:2 }]
+    }, { plugins:{ legend:{ display:false } }, scales:{ y:{ max:100, ticks:{ callback:v=>v+'%' } } } });
+    baseChart('chartActiveMix','doughnut',{
+      labels:['Active Recall','Feynman','Espaciado'],
+      datasets:[{ data:[50,30,20], backgroundColor:['#3b82f6','#10b981','#f59e0b'] }]
+    });
+    baseChart('chartIATools','bar',{
+      labels:['Resúmenes','Preguntas','Citas','Explicaciones'],
+      datasets:[{ label:'ChatGPT', data:[9,8,5,9], backgroundColor:'#3b82f6' },{ label:'NotebookLM', data:[7,7,9,6], backgroundColor:'#10b981' }]
+    }, { scales:{ y:{ min:0, max:10, ticks:{ stepSize:1 } } } });
+  });
+
+  // --- Prompts IA ---
+  (function(){
+    const box = document.getElementById('promptBox');
+    const prompts = {
+      resumen:`Actuá como profesor ayudante. Leé el PDF adjunto y generá un resumen en formato Cornell: \n- columna de PISTAS con 10 preguntas desafiantes\n- columna de NOTAS con ideas clave en viñetas\n- RESUMEN en 5 líneas\nUsá lenguaje simple y ejemplos de ingeniería.`,
+      flashcards:`Convertí estas notas en 30 flashcards tipo Cloze para Anki. Formato: 'Texto con {{c1::ocultaciones}}'. Una idea por tarjeta. Incluí 5 tarjetas de imagen (indicar imagen y etiquetas).`,
+      examen:`Generá 20 preguntas tipo múltiple opción sobre <tema>. Dificultad creciente. Devolvé JSON con campos: pregunta, opciones[4], correcta, explicación.`,
+      feynman:`Explicá <concepto> como si tuviera 12 años. Usá analogías cotidianas y luego una versión técnica corta. Terminá con 3 preguntas de chequeo.`
+    };
+    function setPrompt(k){ box.textContent = prompts[k] || ''; }
+    document.querySelectorAll('[data-prompt]').forEach(b=> b.addEventListener('click', ()=> setPrompt(b.dataset.prompt)) );
+    setPrompt('resumen');
+  })();
+
+  // --- Quiz .xlsx minimal (mantiene compatibilidad con tu formato) ---
+  (function(){
+    const input = document.getElementById('fileInput');
+    const status = document.getElementById('quizStatus');
+    const container = document.getElementById('quizContainer');
+    function renderQuiz(items){
+      let idx=0, correct=0, wrong=0, skipped=0;
+      container.innerHTML = '';
+      const wrap = document.createElement('div'); wrap.className='space-y-4'; container.appendChild(wrap);
+      const qBox = document.createElement('div'); qBox.className='p-5 rounded-xl border border-[var(--border)]'; wrap.appendChild(qBox);
+      const footer = document.createElement('div'); footer.className='flex gap-2'; wrap.appendChild(footer);
+      function paint(){
+        const q = items[idx]; qBox.innerHTML = `<div class='text-sm text-[var(--muted)] mb-2'>${idx+1}/${items.length} · ${q.tema||'General'}</div><h3 class='font-semibold mb-2'>${q.pregunta}</h3>`;
+        const opts = document.createElement('div'); opts.className='grid sm:grid-cols-2 gap-2'; qBox.appendChild(opts);
+        for(const o of ['a','b','c','d']){
+          const btn = document.createElement('button'); btn.className='btn'; btn.textContent = q[o]; btn.addEventListener('click', ()=>{
+            if(o===q.correcta){ correct++; btn.classList.add('btn-primary'); } else { wrong++; btn.style.borderColor = '#dc2626'; }
+            setTimeout(next, 350);
+          }); opts.appendChild(btn);
+        }
+        const exp = document.createElement('div'); exp.className='mt-3 text-sm text-[var(--muted)]'; exp.textContent = q.explicacion || '';
+        qBox.appendChild(exp);
+        footer.innerHTML = '';
+        const skip = document.createElement('button'); skip.className='btn'; skip.innerHTML = "Saltar"; skip.onclick = ()=>{ skipped++; next(); };
+        footer.appendChild(skip);
+      }
+      function next(){ idx++; if(idx>=items.length) return end(); paint(); }
+      function end(){
+        container.innerHTML = `<div class='p-6 rounded-xl border text-center'><h3 class='font-semibold mb-2'>Resultado</h3><p>✔️ ${correct} · ❌ ${wrong} · ⏭ ${skipped}</p></div>`;
+      }
+      paint();
+    }
+    input?.addEventListener('change', async (e)=>{
+      status.textContent = 'Leyendo archivo…';
+      const file = e.target.files?.[0]; if(!file){ status.textContent=''; return }
+      const data = await file.arrayBuffer(); const wb = XLSX.read(data, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]]; const rows = XLSX.utils.sheet_to_json(ws);
+      const items = rows.map(r=>({ pregunta:r.pregunta||r.Pregunta, a:r.a||r.A, b:r.b||r.B, c:r.c||r.C, d:r.d||r.D, correcta:(r.correcta||r.Correcta||'a').toString().trim().toLowerCase(), explicacion:r.explicacion||r.Explicacion||'', tema:r.tema||r.Tema||'' })).filter(r=>r.pregunta && r.a && r.b);
+      status.textContent = `${items.length} preguntas cargadas`;
+      if(items.length) renderQuiz(items); else status.textContent = 'No se detectaron preguntas válidas.';
+    });
+  })();
+
+  // --- Descarga de plan semanal dummy PDF (placeholder) ---
+  document.getElementById('downloadPlanner')?.addEventListener('click', ()=>{
+    const blob = new Blob([`Plan semanal\nLun-Vie: Cornell + digitalización\nMié: Feynman\nSáb: Active Recall + crear flashcards\nDiario: Revisión Anki`], {type:'text/plain'});
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='plan-semanal.txt'; a.click(); URL.revokeObjectURL(url);
+  });
+  </script>
+</body>
+</html>

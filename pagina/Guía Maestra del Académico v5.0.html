@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guía Maestra del Académico v5.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+      :root {
+        --bg-color: #f8fafc;
+        --primary-accent: #4f46e5;
+        --secondary-accent: #10b981;
+        --text-dark: #111827;
+        --text-light: #6b7280;
+        --border-color: #e5e7eb;
+        --card-bg: #ffffff;
+      }
+      body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-dark); }
+      .sidebar { width: 250px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); padding: 24px; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+      .sidebar nav a.active { background-color: var(--primary-accent); color: #fff; font-weight: 600; box-shadow: 0 4px 14px rgb(79 70 229 / 30%); }
+      .main-content-container { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; }
+      @media (max-width: 1024px) { .sidebar { display: none; } .main-content-container { padding: 1rem; } }
+      
+      #mobile-tabs .tab.active { border-color: var(--primary-accent); color: var(--primary-accent); font-weight: 600; }
+      #method-tabs .method-tab.active { border-color: var(--secondary-accent); color: var(--secondary-accent); font-weight: 600; }
+      
+      .chart-container { position: relative; width: 100%; max-width: 450px; margin: auto; height: 280px; }
+      @media(min-width: 768px) { .chart-container { height: 320px; } }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      .message-box-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+      .message-box { background-color: var(--card-bg); padding: 24px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); max-width: 400px; text-align: center; }
+      .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+      .btn-primary { background-color: var(--primary-accent); color: #fff; }
+      .btn-primary:hover { background-color: #4338ca; }
+      .btn-secondary { background-color: var(--text-light); color: #fff; }
+       
+      .quiz-container-wrapper { background: #ffffff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); border: 1px solid #ddd; margin-bottom: 20px; }
+      .file-loader { text-align: center; border: 2px dashed #dee2e6; padding: 40px; transition: border-color 0.3s; }
+      .option { background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.2s; }
+      .option.selected { border-color: var(--primary-accent); background: #e0e7ff; }
+      .option.correct { background: #d1fae5; border-color: #10b981; }
+      .option.incorrect { background: #fee2e2; border-color: #ef4444; }
+      .score-box { font-weight: 500; padding: 4px 12px; border-radius: 8px; font-size: 0.85em; display: flex; align-items: center; gap: 6px; }
+      .score-box.correct { background: #d1fae5; color: #065f46; }
+      .score-box.incorrect { background: #fee2e2; color: #991b1b; }
+      .score-box.skipped { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body class="antialiased flex">
+  <aside class="sidebar" aria-label="Navegación principal">
+    <h1 class="font-bold text-2xl text-indigo-600 mb-8">Guía Maestra</h1>
+    <nav id="main-tabs" class="flex flex-col space-y-1">
+      <a href="#" data-tab="intro" class="active flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-home' ></i> Introducción</a>
+      <a href="#" data-tab="activos" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-brain' ></i> Captura Activa</a>
+      <a href="#" data-tab="methods" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-book-content'></i> Métodos</a>
+      <a href="#" data-tab="organization" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-spreadsheet'></i> Segundo Cerebro</a>
+      <a href="#" data-tab="techniques" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-flask'></i> Técnicas de Estudio</a>
+      <a href="#" data-tab="workflow" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-sitemap' ></i> Ciclo Semanal</a>
+      <a href="#" data-tab="quiz" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-help-circle' ></i> Autoevaluación</a>
+      <a href="#" data-tab="resources" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-archive'></i> Recursos</a>
+    </nav>
+  </aside>
+
+  <div class="main-content-container">
+    <header class="mb-6 lg:hidden">
+      <div class="bg-white rounded-2xl p-4 border border-gray-200">
+        <h1 class="text-xl font-bold text-gray-800">Guía Maestra v5.0</h1>
+        <div class="mt-4 border-b border-gray-200">
+          <nav id="mobile-tabs" class="flex space-x-4 no-scrollbar overflow-x-auto">
+            <a href="#" data-tab="intro" class="tab py-3 px-1 text-sm font-medium active whitespace-nowrap">Intro</a>
+            <a href="#" data-tab="activos" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Captura</a>
+            <a href="#" data-tab="methods" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Métodos</a>
+            <a href="#" data-tab="organization" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Notion</a>
+            <a href="#" data-tab="techniques" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Técnicas</a>
+            <a href="#" data-tab="workflow" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Ciclo</a>
+            <a href="#" data-tab="quiz" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Quiz</a>
+            <a href="#" data-tab="resources" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Recursos</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section id="content-intro" class="tab-pane space-y-8">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+          <h2 class="text-3xl font-bold mb-4">La Guía Maestra del Académico Integrado</h2>
+          <p class="text-lg text-gray-700">Bienvenido a la versión definitiva de nuestro taller. Esta guía es un sistema completo para que aprendas de manera activa, organices tu vida digital y domines las técnicas de estudio más efectivas, todo sin depender de la IA. El objetivo es simple: darte el control total de tu aprendizaje.</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold text-center mb-4">Estructura del Taller (2 Horas)</h3>
+                <div class="chart-container"><canvas id="workshopPlanChart"></canvas></div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold mb-4">Los 3 Bloques del Éxito</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start"><div class="w-8 h-8 rounded-full bg-indigo-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">1</div><div><h4 class="font-semibold">Captura y Organización</h4><p class="text-sm text-gray-500">Domina el Método Cornell y construye tu "Segundo Cerebro" en Notion.</p></div></li>
+                    <li class="flex items-start"><div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">2</div><div><h4 class="font-semibold">Aprendizaje Profundo</h4><p class="text-sm text-gray-500">Aplica Feynman, Recuerdo Activo y Repetición Espaciada con Anki.</p></div></li>
+                    <li class="flex items-start"><div class="w-8 h-8 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">3</div><div><h4 class="font-semibold">Integración y Práctica</h4><p class="text-sm text-gray-500">Combina todo en un ciclo de estudio semanal y autoevalúate.</p></div></li>
+                </ul>
+            </div>
+        </div>
+      </section>
+
+      <section id="content-activos" class="tab-pane space-y-8" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-3xl font-bold text-center mb-4">El Cambio Cognitivo: De Pasivo a Activo</h2>
+            <p class="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-8">El estudio pasivo (releer, subrayar) es la causa principal de frustración. El aprendizaje real exige un compromiso mental deliberado: filtrar, sintetizar y conectar ideas. Este es el cambio cognitivo fundamental que te proponemos.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">¿Por qué funciona el aprendizaje activo?</h3>
+                    <p class="text-gray-600 mb-6">La ciencia cognitiva ha demostrado que tomar apuntes a mano de forma resumida y estructurada conduce a una mejor comprensión conceptual. El acto físico más lento de escribir te obliga a sintetizar, fortaleciendo las vías neuronales y mejorando la memoria a largo plazo.</p>
+                </div>
+                <div class="chart-container"><canvas id="retentionChart"></canvas></div>
+            </div>
+        </div>
+      </section>
+
+      <section id="content-methods" class="tab-pane space-y-8" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+          <h2 class="text-3xl font-bold mb-4">El Método Cornell: Un Sistema para la Reflexión Estructurada</h2>
+          <p class="text-gray-600 mb-6">Más que un formato, el Método Cornell es un sistema integral para la captura, organización y repaso activo de la información. Su eficacia está respaldada por estudios que reportan mejoras de hasta un 12% en los resultados de exámenes.</p>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+              <div class="bg-gray-50 p-4 rounded-lg"><h4 class="font-bold">1. Preparación</h4><p class="text-sm">Divide la hoja: notas (derecha), pistas (izquierda) y resumen (abajo).</p></div>
+              <div class="bg-gray-50 p-4 rounded-lg"><h4 class="font-bold">2. Captura</h4><p class="text-sm">Durante la clase, anota ideas clave, fórmulas y ejemplos en la columna principal.</p></div>
+              <div class="bg-gray-50 p-4 rounded-lg"><h4 class="font-bold">3. Proceso</h4><p class="text-sm">Post-clase (en 24h), formula preguntas en la columna de pistas y escribe el resumen.</p></div>
+              <div class="bg-gray-50 p-4 rounded-lg"><h4 class="font-bold">4. Repaso</h4><p class="text-sm">Cubre las notas y responde las preguntas de la columna de pistas (Active Recall).</p></div>
+          </div>
+        </div>
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-2xl font-bold mb-4">Expandiendo el Arsenal: Técnicas Visuales y Jerárquicas</h2>
+            <div class="flex justify-center w-full mb-6">
+                <nav id="method-tabs" class="flex space-x-4 no-scrollbar overflow-x-auto border-b-2 border-gray-200">
+                    <a href="#" data-method="outline" class="method-tab active py-3 px-1 font-medium whitespace-nowrap">Método de Esquema</a>
+                    <a href="#" data-method="mindmap" class="method-tab py-3 px-1 font-medium whitespace-nowrap">Mapas Mentales</a>
+                    <a href="#" data-method="conceptmap" class="method-tab py-3 px-1 font-medium whitespace-nowrap">Mapas Conceptuales</a>
+                </nav>
+            </div>
+            <div id="method-content"></div>
+        </div>
+      </section>
+      
+      <section id="content-organization" class="tab-pane space-y-8" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-3xl font-bold mb-4">Construyendo tu "Segundo Cerebro" en Notion</h2>
+            <p class="text-gray-600 mb-6">Externaliza la carga organizativa a un sistema digital para liberar tu mente para el pensamiento profundo. Este tutorial te guía para crear tu panel de control académico desde cero, centralizando materias, tareas y apuntes.</p>
+            <ol class="list-decimal list-inside space-y-6">
+                <li>
+                    <h4 class="font-semibold">Crea las 3 Bases de Datos Centrales</h4>
+                    <p class="text-sm text-gray-500 ml-6">El corazón de tu sistema. Usa `/database` para crear "Materias", "Tareas y Entregas", y "Apuntes de Clase", cada una con sus propiedades (columnas) específicas como Fecha, Estado, etc.</p>
+                </li>
+                <li><h4 class="font-semibold">Conecta todo con la Propiedad "Relación"</h4><p class="text-sm text-gray-500 ml-6"> Vincula "Tareas" y "Apuntes" a su "Materia" correspondiente. Esto crea un vínculo bidireccional que centraliza toda la información de un curso en la página de esa materia.</p></li>
+                <li><h4 class="font-semibold">Automatiza con la Propiedad "Rollup"</h4><p class="text-sm text-gray-500 ml-6"> Extrae información de las páginas relacionadas. Por ejemplo, crea una barra de progreso automática en tu tabla de "Materias" que calcule el porcentaje de tareas completadas para ese curso.</p></li>
+                <li><h4 class="font-semibold">Diseña tu Panel de Control (Dashboard)</h4><p class="text-sm text-gray-500 ml-6"> En una página principal, usa `/linked view` para crear vistas personalizadas de tus bases de datos: un calendario de entregas, una galería de materias y una lista filtrada de tareas pendientes.</p></li>
+            </ol>
+        </div>
+      </section>
+
+      <section id="content-techniques" class="tab-pane space-y-8" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 text-center">
+            <h2 class="text-3xl font-bold mb-2">Técnicas para el Aprendizaje Profundo</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Una vez capturada y organizada la información, estas técnicas, basadas en ciencia cognitiva, aseguran que se transforme en conocimiento duradero.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold mb-4">Técnica Feynman: La Prueba de Fuego de la Comprensión</h3>
+                <p class="text-gray-600">Su premisa es simple: la verdadera comprensión se demuestra al poder explicar un concepto con palabras sencillas. Sigue 4 pasos: elige un concepto, enséñalo como a un niño, identifica tus lagunas de conocimiento al trabarte, y finalmente, revisa el material original y simplifica tu explicación.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-200">
+                <h3 class="text-xl font-bold mb-4">Recuerdo Activo (Active Recall): La Ciencia de Recuperar</h3>
+                <p class="text-gray-600">El acto de recuperar información de la memoria fortalece las vías neuronales. Es exponencialmente más efectivo que la relectura. Autoevalúate constantemente: hazte preguntas, realiza "volcados cerebrales" (brain dumps) y resuelve problemas sin mirar las soluciones.</p>
+            </div>
+        </div>
+         <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h3 class="text-xl font-bold mb-4">Repetición Espaciada y Anki: Venciendo la Curva del Olvido</h3>
+            <p class="text-gray-600 mb-4">Repasa la información en intervalos de tiempo crecientes, justo antes de que estés a punto de olvidarla. Anki es un software gratuito que automatiza este proceso mediante flashcards inteligentes, optimizando tu tiempo de repaso.</p>
+            <p class="text-gray-600 font-semibold">Tipos de tarjetas recomendadas para materias técnicas:</p>
+            <ul class="list-disc list-inside ml-4 mt-2 text-sm space-y-1">
+                <li><strong>Básica (y Reversa):</strong> Ideal para definiciones y vocabulario. (Ej: "Capa 4 del Modelo OSI" ↔ "Capa de Transporte").</li>
+                <li><strong>Oclusión de Cloze (Rellenar el hueco):</strong> El tipo más versátil. Oculta partes de una frase para que las completes. (Ej: "La ... total de un sistema aislado solo puede aumentar.").</li>
+                <li><strong>Oclusión de Imagen (con add-on):</strong> Indispensable para materias visuales. Sube un diagrama y oculta las etiquetas para identificarlas.</li>
+            </ul>
+        </div>
+      </section>
+      
+      <section id="content-workflow" class="tab-pane space-y-8" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-3xl font-bold mb-4">El Ciclo de Estudio Sinergético: Tu Plan de Acción Semanal</h2>
+            <p class="text-gray-600 mb-6">Estas técnicas no son aisladas, sino componentes de un sistema integrado. Su verdadero poder se desata cuando se combinan en un flujo de trabajo coherente. Este plan te ayudará a internalizar el ciclo hasta que se convierta en un hábito.</p>
+            <ul class="space-y-4">
+                <li class="p-4 bg-gray-50 rounded-lg"><strong class="text-indigo-600">Lunes a Viernes (Captura y Organización):</strong> Usa el Método Cornell en clase. Por la tarde/noche, procesa los apuntes: digitalízalos en Notion, formula las preguntas en la columna de pistas y escribe el resumen.</li>
+                <li class="p-4 bg-gray-50 rounded-lg"><strong class="text-indigo-600">Miércoles (Profundización):</strong> Elige el concepto más complejo de la semana y aplícale la Técnica Feynman hasta que puedas explicarlo de forma simple.</li>
+                <li class="p-4 bg-gray-50 rounded-lg"><strong class="text-indigo-600">Sábado (Consolidación):</strong> Revisa todos los apuntes de la semana en Notion. Realiza un "Volcado Cerebral" (Active Recall) para cada materia en una hoja en blanco. Identifica los conceptos débiles y crea tarjetas de Anki para ellos.</li>
+                <li class="p-4 bg-gray-50 rounded-lg"><strong class="text-indigo-600">Diariamente (15-30 minutos - No negociable):</strong> Completa todas las revisiones que Anki te presente. Esta es la clave para la retención a largo plazo con una inversión de tiempo mínima.</li>
+            </ul>
+        </div>
+      </section>
+
+      <section id="content-quiz" class="tab-pane space-y-8" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-2xl font-bold mb-4">Autoevaluación Interactiva</h2>
+            <p class="text-gray-600 mb-6">La autoevaluación es la pieza central del Recuerdo Activo. Carga tu propio cuestionario en formato Excel para poner a prueba tu conocimiento de manera efectiva.</p>
+             <div class="bg-amber-50 p-4 rounded-xl mb-6">
+                <h3 class="text-lg font-semibold text-amber-800 mb-2">¿Cómo crear tu archivo Excel?</h3>
+                <p class="text-sm text-amber-700">Crea un archivo `.xlsx` con una hoja llamada `Preguntas`. Las columnas deben ser: `Tópico`, `Pregunta`, `Opción A`, `Opción B`, `Opción C`, etc., y una columna `Opciones correctas` (con las letras separadas por comas, ej: "A, C").</p>
+            </div>
+            <div id="file-loader" class="text-center border-2 border-dashed rounded-lg p-8">
+                <input id="file-input" type="file" accept=".xlsx,.xls" class="hidden" />
+                <label for="file-input" class="btn btn-primary cursor-pointer"><i class='bx bx-upload'></i> Seleccionar Archivo .xlsx</label>
+                <p id="status-message" class="text-xs mt-2 text-gray-500"></p>
+            </div>
+            <div id="selection-menu-container" class="quiz-container-wrapper mt-8" style="display:none;"></div>
+            <div id="quiz-container" class="quiz-container-wrapper mt-8" style="display:none;"></div>
+        </div>
+      </section>
+
+      <section id="content-resources" class="tab-pane space-y-8" style="display:none;">
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200">
+            <h2 class="text-2xl font-bold mb-4">Biblioteca de Recursos Seleccionados</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-bold text-indigo-600">Toma de Apuntes</h3>
+                    <ul class="text-sm mt-2 space-y-1"><a href="https://lsc.cornell.edu/how-to-study/taking-notes/cornell-note-taking-system/" target="_blank" class="hover:underline">Guía Oficial Cornell</a>, <a href="https://templatelab.com/cornell-notes/" target="_blank" class="hover:underline">Plantillas Cornell</a>, <a href="https://www.xmind.net" target="_blank" class="hover:underline">XMind</a>.</ul>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-bold text-indigo-600">Organización</h3>
+                    <ul class="text-sm mt-2 space-y-1"><a href="https://notion.so" target="_blank" class="hover:underline">Notion</a> (Plan Educativo), <a href="https://apps.ankiweb.net" target="_blank" class="hover:underline">Anki</a> (SRS Gratuito).</ul>
+                </div>
+                 <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-bold text-indigo-600">Tutoriales en Video</h3>
+                    <ul class="text-sm mt-2 space-y-1"><a href="https://www.youtube.com/watch?v=38VuJ5xWlPw" target="_blank" class="hover:underline">Organizar estudios con Notion</a>, <a href="https://www.youtube.com/watch?v=98pbPqlkBlc" target="_blank" class="hover:underline">Tutorial de Anki en Español</a>.</ul>
+                </div>
+            </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="message-box-overlay" class="message-box-overlay" style="display: none;"><div class="message-box"><p id="message-box-text" class="mb-4"></p><button id="message-box-ok-btn" class="btn btn-primary">OK</button></div></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const styles = getComputedStyle(document.documentElement);
+      const primaryAccent = styles.getPropertyValue('--primary-accent').trim();
+      const secondaryAccent = styles.getPropertyValue('--secondary-accent').trim();
+      const textColorLight = styles.getPropertyValue('--text-light').trim();
+      Chart.defaults.color = textColorLight;
+      Chart.defaults.font.family = "'Inter', sans-serif";
+
+      const mainTabs = document.querySelectorAll('#main-tabs a, #mobile-tabs a');
+      function activateTab(tabId) {
+        document.querySelectorAll('#main-tabs a, #mobile-tabs a').forEach(a => a.classList.remove('active'));
+        document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(a => a.classList.add('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+        const target = document.getElementById(`content-${tabId}`);
+        if (target) { target.style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      }
+      mainTabs.forEach(link => {
+        link.addEventListener('click', e => { e.preventDefault(); activateTab(link.dataset.tab); });
+      });
+
+      new Chart(document.getElementById('workshopPlanChart'), {
+        type: 'doughnut',
+        data: { labels: ['Captura y Organización', 'Aprendizaje Profundo', 'Integración y Práctica'], datasets: [{ data: [40, 40, 20], backgroundColor: [primaryAccent, secondaryAccent, '#f59e0b'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+      });
+      new Chart(document.getElementById('retentionChart'), {
+        type: 'bar',
+        data: { labels: ['Estudio Pasivo (Relectura)', 'Estudio Activo (Práctica)'], datasets: [{ label: 'Retención de Información (%)', data: [25, 75], backgroundColor: ['#ef4444', secondaryAccent], borderRadius: 5 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { max: 100, ticks: { callback: v => v + '%' } } } }
+      });
+
+      const methodContent = document.getElementById('method-content');
+      const methodData = {
+          outline: { title: 'Método de Esquema (Outline)', content: 'Ideal para materias con estructura lógica. Organiza la información en niveles y subniveles, usando viñetas y sangrías. Fomenta una comprensión estructural y revela la arquitectura del tema.', tools: 'Workflowy, Dynalist, Microsoft Word.'},
+          mindmap: { title: 'Mapas Mentales (Mind Mapping)', content: 'Técnica visual y no lineal. Se comienza con un concepto central y se dibujan ramificaciones que representan subtemas. El uso de colores e imágenes crea múltiples "ganchos" mnemotécnicos.', tools: 'XMind, MindMeister, Coggle.' },
+          conceptmap: { title: 'Mapas Conceptuales (Concept Mapping)', content: 'Más analítico y estructurado. Representa relaciones formales entre conceptos mediante nodos y líneas etiquetadas (p. ej., "causa", "se compone de"). Ideal para visualizar sistemas complejos.', tools: 'CmapTools, Lucidchart, Diagrams.net.' }
+      };
+      function renderMethodContent(method) {
+          const data = methodData[method];
+          methodContent.innerHTML = `<h3 class="text-xl font-bold">${data.title}</h3><p class="mt-2 text-gray-600">${data.content}</p><p class="mt-4 text-sm"><strong>Herramientas recomendadas:</strong> ${data.tools}</p>`;
+      }
+      document.querySelectorAll('#method-tabs a').forEach(tab => {
+          tab.addEventListener('click', e => {
+              e.preventDefault();
+              document.querySelectorAll('#method-tabs a').forEach(t => t.classList.remove('active'));
+              e.target.classList.add('active');
+              renderMethodContent(e.target.dataset.method);
+          });
+      });
+      renderMethodContent('outline');
+
+      const messageBoxOverlay = document.getElementById('message-box-overlay');
+      const messageBoxText = document.getElementById('message-box-text');
+      function showMessage(message) {
+          messageBoxText.textContent = message;
+          messageBoxOverlay.style.display = 'flex';
+          messageBoxOverlay.querySelector('button').onclick = () => messageBoxOverlay.style.display = 'none';
+      }
+
+      const fileInput = document.getElementById('file-input');
+      const statusMsg = document.getElementById('status-message');
+      const fileLoaderEl = document.getElementById('file-loader');
+      const selectionMenuContainer = document.getElementById('selection-menu-container');
+      const quizContainer = document.getElementById('quiz-container');
+      let allQuestions = [], currentQuizQuestions = [], current = 0, selected = [], answered = [], userAns = [];
+      let correctCount = 0, incorrectCount = 0, skippedCount = 0, skippedQuestionsQueue = [];
+      let timerIntervalId;
+
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        statusMsg.textContent = 'Procesando archivo…';
+        const reader = new FileReader();
+        reader.onload = evt => {
+          try {
+            const wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+            const qSheet = wb.Sheets['Preguntas'];
+            if (!qSheet) throw new Error("El libro debe tener una hoja 'Preguntas'.");
+            const qData = XLSX.utils.sheet_to_json(qSheet);
+            allQuestions = buildQuestions(qData);
+            if (!allQuestions.length) throw new Error('No se encontraron preguntas válidas en el archivo.');
+            fileLoaderEl.style.display = 'none';
+            showSelectionMenu();
+          } catch (err) { showMessage(`Error: ${err.message}`); statusMsg.textContent = ''; }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+      
+      function buildQuestions(qData) {
+        return qData.map(row => {
+          const qTxt = String(row['Pregunta'] || '').trim();
+          if (!qTxt) return null;
+          const options = {};
+          Object.keys(row).forEach(k => {
+            const m = k.match(/^Opción\s+([A-J])$/i);
+            if (m) {
+              const letter = m[1].toUpperCase();
+              if (row[k] != null && String(row[k]).trim() !== '') options[letter] = String(row[k]);
+            }
+          });
+          const corr = String(row['Opciones correctas'] || '').split(/[ ,;/]+/).map(s => s.trim().toUpperCase()).filter(l => options[l]);
+          if (Object.keys(options).length === 0 || corr.length === 0) return null;
+          return { topic: row['Tópico'] || 'General', question: qTxt, options, correctAnswers: corr.sort() };
+        }).filter(Boolean);
+      }
+
+      function showSelectionMenu() {
+        clearInterval(timerIntervalId);
+        quizContainer.innerHTML = '';
+        quizContainer.style.display = 'none';
+        const uniqueTopics = [...new Set(allQuestions.map(q => q.topic))].sort();
+        selectionMenuContainer.innerHTML = `
+          <h2 class="text-xl font-bold mb-4">Configura tu Cuestionario</h2>
+          <div class="space-y-4">
+            <div><h3 class="font-semibold mb-2">Temas Disponibles:</h3><div id="topic-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2">${uniqueTopics.map(topic => `<label class="flex items-center gap-2 p-2 bg-gray-100 rounded-md cursor-pointer"><input type="checkbox" value="${topic}" checked /><span>${topic}</span></label>`).join('')}</div></div>
+            <div><label for="num-questions" class="font-semibold mb-2 block">Cantidad de Preguntas:</label><input type="number" id="num-questions" min="1" max="${allQuestions.length}" value="${allQuestions.length}" class="w-full p-2 border rounded-md" /></div>
+          </div>
+          <div class="flex gap-4 mt-6">
+            <button id="start-quiz-btn" class="btn btn-primary flex-1"><i class='bx bx-play-circle'></i> Iniciar</button>
+            <button id="back-to-excel-btn-menu" class="btn btn-secondary"><i class='bx bx-upload'></i> Cargar Otro</button>
+          </div>
+        `;
+        selectionMenuContainer.style.display = 'block';
+        document.getElementById('start-quiz-btn').onclick = startQuizFromSelection;
+        document.getElementById('back-to-excel-btn-menu').onclick = resetToExcelUpload;
+      }
+
+      function startQuizFromSelection() {
+        const selectedTopics = Array.from(document.querySelectorAll('#topic-list input:checked')).map(cb => cb.value);
+        const numQuestions = Math.max(1, parseInt(document.getElementById('num-questions').value, 10));
+        if (selectedTopics.length === 0) { showMessage('Por favor, selecciona al menos un tema.'); return; }
+        let filtered = allQuestions.filter(q => selectedTopics.includes(q.topic));
+        if (!filtered.length) { showMessage('No hay preguntas disponibles para los temas seleccionados.'); return; }
+        filtered.sort(() => 0.5 - Math.random());
+        currentQuizQuestions = filtered.slice(0, numQuestions);
+        selectionMenuContainer.style.display = 'none';
+        startQuiz();
+      }
+
+      function startQuiz() {
+        current = 0; correctCount = 0; incorrectCount = 0; skippedCount = 0;
+        answered = new Array(currentQuizQuestions.length).fill(false);
+        userAns = new Array(currentQuizQuestions.length).fill(null);
+        skippedQuestionsQueue = [];
+        quizContainer.style.display = 'block';
+        showQuestion();
+      }
+
+      function showQuestion() {
+        if (current >= currentQuizQuestions.length) {
+          if (skippedQuestionsQueue.length > 0) {
+            const startIdx = currentQuizQuestions.length;
+            currentQuizQuestions.push(...skippedQuestionsQueue);
+            answered.push(...new Array(skippedQuestionsQueue.length).fill(false));
+            userAns.push(...new Array(skippedQuestionsQueue.length).fill(null));
+            skippedQuestionsQueue = [];
+            current = startIdx;
+          } else { showResults(); return; }
+        }
+        const q = currentQuizQuestions[current];
+        quizContainer.innerHTML = `
+          <div class="text-center mb-4"><div class="inline-block bg-indigo-100 text-indigo-800 text-sm font-bold px-3 py-1 rounded-full">${q.topic}</div><div id="timer-display" class="font-bold mt-2"></div></div>
+          <div class="mb-4 bg-gray-200 rounded-full h-2.5"><div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+          <p class="text-xs text-gray-500 text-center mb-2" id="progress-text"></p>
+          <h3 class="text-lg font-bold mb-4">${current + 1}. ${q.question}</h3>
+          <div id="options-area" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          <div class="flex flex-wrap gap-2 justify-between mt-6 border-t pt-4">
+            <button id="skip-btn" class="btn btn-secondary"><i class='bx bx-fast-forward'></i> Saltar</button>
+            <button id="confirm-btn" class="btn btn-primary" disabled><i class='bx bx-check-double'></i> Confirmar</button>
+            <button id="next-btn" class="btn btn-primary" style="display:none;"><i class='bx bx-log-in-circle'></i> Siguiente</button>
+          </div>`;
+        selected = [];
+        const optArea = document.getElementById('options-area');
+        Object.keys(q.options).sort().forEach(letter => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.dataset.key = letter;
+            div.innerHTML = `<strong class="text-indigo-600">${letter}</strong><span>${q.options[letter]}</span>`;
+            div.addEventListener('click', () => toggleSelect(div, letter));
+            optArea.appendChild(div);
+        });
+        document.getElementById('confirm-btn').onclick = confirmAnswer;
+        document.getElementById('next-btn').onclick = () => { current++; showQuestion(); };
+        document.getElementById('skip-btn').onclick = skipQuestion;
+        updateProgress();
+      }
+
+      function toggleSelect(div, key) {
+        const i = selected.indexOf(key);
+        if (i > -1) { selected.splice(i, 1); div.classList.remove('selected'); } 
+        else { selected.push(key); div.classList.add('selected'); }
+        document.getElementById('confirm-btn').disabled = selected.length === 0;
+      }
+
+      function skipQuestion() {
+        skippedQuestionsQueue.push(currentQuizQuestions[current]);
+        skippedCount++; answered[current] = true; userAns[current] = [];
+        current++; showQuestion();
+      }
+
+      function confirmAnswer() {
+        const q = currentQuizQuestions[current];
+        userAns[current] = [...selected].sort(); answered[current] = true;
+        const isCorrect = userAns[current].join(',') === q.correctAnswers.join(',');
+        isCorrect ? correctCount++ : incorrectCount++;
+        document.querySelectorAll('.option').forEach(div => {
+            div.classList.add('opacity-50', 'pointer-events-none');
+            if (q.correctAnswers.includes(div.dataset.key)) div.classList.add('correct');
+            else if (selected.includes(div.dataset.key)) div.classList.add('incorrect');
+        });
+        document.getElementById('confirm-btn').style.display = 'none';
+        document.getElementById('skip-btn').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'inline-flex';
+        updateProgress();
+      }
+
+      function updateProgress() {
+        const done = answered.filter(Boolean).length;
+        const total = currentQuizQuestions.length;
+        document.getElementById('progress-bar').style.width = `${(done / total) * 100}%`;
+        document.getElementById('progress-text').textContent = `Pregunta ${Math.min(current + 1, total)} de ${total}`;
+      }
+      
+      function showResults() {
+        let html = `<div class="text-center"><h2 class="text-2xl font-bold">Resultados Finales</h2>
+            <div class="flex justify-center gap-4 my-4">
+                <span class="score-box correct">✓ ${correctCount}</span>
+                <span class="score-box incorrect">✗ ${incorrectCount}</span>
+                <span class="score-box skipped">» ${skippedCount}</span>
+            </div></div>`;
+        currentQuizQuestions.forEach((q, i) => {
+            const u = userAns[i];
+            const isSkipped = Array.isArray(u) && u.length === 0;
+            const isCorrect = !isSkipped && u.join(',') === q.correctAnswers.join(',');
+            html += `<div class="p-4 border-t mt-4"><h4 class="font-bold">${i + 1}. ${q.question}</h4>
+                <p>Tu respuesta: <span class="font-semibold ${isSkipped ? 'text-amber-600' : isCorrect ? 'text-green-600' : 'text-red-600'}">${isSkipped ? 'Saltada' : (u ? u.join(', ') : 'No respondida')}</span></p>
+                <p>Correcta: <span class="font-semibold text-green-600">${q.correctAnswers.join(', ')}</span></p></div>`;
+        });
+        html += `<div class="flex gap-4 mt-6">
+            <button id="back-to-menu-btn-results" class="btn btn-secondary flex-1"><i class='bx bx-revision'></i> Repetir</button>
+            <button id="back-to-excel-btn-results" class="btn btn-secondary"><i class='bx bx-upload'></i> Cargar Otro</button>
+        </div>`;
+        quizContainer.innerHTML = html;
+        document.getElementById('back-to-menu-btn-results').onclick = showSelectionMenu;
+        document.getElementById('back-to-excel-btn-results').onclick = resetToExcelUpload;
+      }
+      
+      function resetToExcelUpload() {
+          fileLoaderEl.style.display = 'block';
+          selectionMenuContainer.innerHTML = '';
+          selectionMenuContainer.style.display = 'none';
+          quizContainer.innerHTML = '';
+          quizContainer.style.display = 'none';
+          fileInput.value = '';
+          statusMsg.textContent = '';
+      }
+
+      activateTab('intro');
+    });
+  </script>
+</body>
+</html>

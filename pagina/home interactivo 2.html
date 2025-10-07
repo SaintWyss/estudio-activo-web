@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guía Interactiva de Apuntes para Ingenieros</title>
+    <!-- TailwindCSS y Chart.js vía CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Iconos Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <!-- XLSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+      :root {
+        --bg-color: #f9fafb;
+        --primary-green: #00bfa6;
+        --primary-green-hover: #00997f;
+        --primary-blue: #7c3aed;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --border-color: #e5e7eb;
+        --card-bg: #ffffff;
+        /* Quiz */
+        --quiz-primary-bg: #f0f2f5;
+        --quiz-secondary-bg: #ffffff;
+        --quiz-primary-text: #212529;
+        --quiz-secondary-text: #5a6268;
+        --quiz-accent-color: #0d6efd;
+        --quiz-correct-color: #198754;
+        --quiz-incorrect-color: #dc3545;
+        --quiz-skip-color: #ffc107;
+        --quiz-option-bg: #f8f9fa;
+        --quiz-option-border: #dee2e6;
+        --quiz-border-radius: 12px;
+        --quiz-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        min-height: 100vh;
+      }
+      .tab.active { border-color: var(--primary-green); color: var(--primary-green); font-weight: 600; }
+      .tab:not(.active) { border-color: transparent; }
+      .pill-button { transition: all 0.2s ease-in-out; }
+      .pill-button.active { background-color: var(--primary-green); color: #fff; box-shadow: 0 4px 14px rgb(16 185 129 / 30%); transform: scale(1.05); }
+      .chart-container { position: relative; width: 100%; max-width: 450px; margin-left: auto; margin-right: auto; height: 300px; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      /* Sidebar */
+      .sidebar { width: 250px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); padding: 24px; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+      .sidebar-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--primary-blue); margin-bottom: 2rem; }
+      .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 8px; border-radius: 12px; font-weight: 500; color: var(--text-dark); transition: background-color 0.2s ease, color 0.2s ease; text-decoration: none; }
+      .sidebar nav a:hover { background-color: var(--bg-color); }
+      .sidebar nav a.active { background-color: var(--primary-green); color: #fff; font-weight: 600; box-shadow: 0 4px 14px rgb(0 191 166 / 30%); }
+
+      .main-content-container { flex-grow: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; }
+      @media (max-width: 768px) {
+        .main-content-container { padding: 1rem; }
+      }
+
+      /* Workflow Section Cards */
+      .workflow-card {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .workflow-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+      }
+      .workflow-card-icon {
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px; /* full rounded */
+        margin-bottom: 1rem;
+      }
+      .workflow-card-icon svg {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+
+      /* Synergy Section */
+      .synergy-card {
+        background-color: #f5f3ff; /* light purple */
+        padding: 2rem;
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+      .synergy-icon {
+        font-size: 5rem;
+        color: var(--primary-blue);
+        flex-shrink: 0;
+      }
+
+      /* Activos vs Pasivos Section */
+      .passive-notes-card {
+        background-color: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        border: 1px solid #f8d7da; /* Color de error de Bootstrap, rojizo */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      }
+      .active-notes-card {
+        background-color: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        border: 1px solid #d1e7dd; /* Color de éxito de Bootstrap, verdoso */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      }
+      .card-icon-passive {
+        color: #d9534f;
+        background-color: #fdeeee;
+        font-size: 1.5rem;
+        font-weight: bold;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card-icon-active {
+        color: #4952f4;
+        background-color: #eef0ff;
+        font-size: 1.5rem;
+        font-weight: bold;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Method tabs */
+      #method-tabs-wrapper { display: flex; justify-content: center; width: 100%; margin-bottom: 24px; }
+      #method-tabs .method-tab { border-color: transparent; border-bottom-width: 2px; text-decoration: none; }
+      #method-tabs .method-tab.active { border-color: var(--primary-green); color: var(--primary-green); font-weight: 600; }
+
+      /* Tables */
+      .table-container { overflow-x: auto; }
+      .table-container table { min-width: 100%; border-collapse: collapse; }
+      .table-container th, .table-container td { padding: 12px; border: 1px solid var(--border-color); }
+      .table-container thead tr { background-color: var(--text-dark); color: #fff; }
+      .table-container tbody tr:nth-child(even) { background-color: var(--bg-color); }
+      .table-container tbody tr:nth-child(odd) { background-color: var(--card-bg); }
+      .table-container tbody tr td { color: var(--text-dark); }
+
+      /* Quiz (from Quizzi.html) */
+      .quiz-container-wrapper {
+        background: var(--quiz-secondary-bg);
+        border-radius: var(--quiz-border-radius);
+        padding: 25px;
+        box-shadow: var(--quiz-box-shadow);
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+      }
+      @keyframes card-fade-in { from { opacity: 0.7; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+      .fade-in-effect { animation: card-fade-in 0.4s ease-out; }
+      .file-loader {
+        text-align: center;
+        border: 2px dashed var(--quiz-option-border);
+        padding: 40px;
+        transition: border-color 0.3s;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+      }
+      .file-loader:hover { border-color: var(--quiz-accent-color); }
+      #file-input { display: none; }
+      .upload-btn { background: var(--quiz-accent-color); color: #fff; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 1em; font-weight: 500; transition: background 0.2s; }
+      .upload-btn:hover { background: #0b5ed7; }
+      .selection-menu-container { padding: 25px; }
+      .topic-selection, .quantity-selection { padding: 15px; border: 1px solid var(--quiz-option-border); border-radius: var(--quiz-border-radius); background-color: var(--quiz-option-bg); }
+      .topic-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+      .topic-item { display: flex; align-items: center; gap: 8px; background: #e9ecef; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+      .topic-item:hover { background: #dee2e6; }
+      .selection-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
+      .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+      .confirm-btn { background: var(--quiz-accent-color); color: #fff; }
+      .confirm-btn:disabled { background: #a0a0a0; cursor: not-allowed; box-shadow: none; }
+      .next-btn { background: var(--quiz-correct-color); color: #fff; }
+      .skip-btn { background: var(--quiz-skip-color); color: #fff; }
+      .back-btn { background: #6c757d; color: #fff; }
+      .ai-explain-btn { background: #007bff; color: #fff; margin-top: 10px; }
+      .ai-explain-btn:hover { background: #0056b3; }
+      #quiz-header-wrapper { text-align: center; margin-bottom: 15px; }
+      #quiz-header-wrapper #topic { display: inline-block; background-color: var(--quiz-accent-color); color: #fff; padding: 5px 15px; border-radius: 20px; font-weight: 500; font-size: 1em; margin-bottom: 15px; }
+      .live-score-container { display: flex; justify-content: center; gap: 15px; margin: 15px 0; }
+      .score-box { font-weight: 500; padding: 4px 12px; border-radius: 8px; font-size: 0.85em; display: flex; align-items: center; gap: 6px; }
+      .score-box.correct { background: #d1e7dd; color: var(--quiz-correct-color); }
+      .score-box.incorrect { background: #f8d7da; color: var(--quiz-incorrect-color); }
+      .score-box.skipped { background: #fff3cd; color: var(--quiz-skip-color); }
+      .options-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+      .option { background: var(--quiz-option-bg); border: 2px solid var(--quiz-option-border); border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
+      .option.selected { border-color: var(--quiz-accent-color); background: #cfe2ff; }
+      .option.correct { background: #d1e7dd; border-color: var(--quiz-correct-color); }
+      .option.incorrect { background: #f8d7da; border-color: var(--quiz-incorrect-color); }
+      .feedback-area { margin-top: 20px; font-size: 0.9em; line-height: 1.5; }
+      .explanation { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-top: 8px; border-left: 4px solid; }
+      .explanation.correct { border-color: var(--quiz-correct-color); background: #f1fcf4; }
+      .explanation.incorrect { border-color: var(--quiz-incorrect-color); background: #fdf2f2; }
+      .ai-explanation { background: #e6f7ff; border-left: 4px solid #007bff; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 0.95em; line-height: 1.6; }
+      .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0, 0, 0, 0.1); border-radius: 50%; border-top-color: var(--quiz-accent-color); animation: spin 1s ease-in-out infinite; margin-left: 10px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 20px; gap: 10px; flex-wrap: wrap; }
+      .results-container { margin-top: 20px; }
+      .final-score-summary { text-align: center; margin: 20px 0 10px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; background-color: var(--quiz-primary-bg); padding: 15px; border-radius: var(--quiz-border-radius); }
+      .final-score-summary span { font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
+      .progress-bar-container { background: #e9ecef; border-radius: 25px; margin: 10px 0; overflow: hidden; }
+      .progress-bar { width: 0; height: 8px; background: var(--quiz-accent-color); border-radius: 25px; transition: width 0.4s; }
+      .progress-text { font-size: 0.85em; color: var(--quiz-secondary-text); }
+      .option.chosen-by-user > .selection-indicator { display: block; }
+      .selection-indicator { font-size: 1.8em; z-index: 2; display: none; }
+      .selection-indicator.correct-choice { color: var(--quiz-correct-color); }
+      .selection-indicator.incorrect-choice { color: var(--quiz-incorrect-color); }
+
+      /* Message Box styles */
+      .message-box-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+      }
+      .message-box {
+          background-color: var(--card-bg);
+          padding: 24px;
+          border-radius: var(--quiz-border-radius);
+          box-shadow: var(--quiz-box-shadow);
+          max-width: 400px;
+          text-align: center;
+      }
+
+      @media (max-width: 600px) {
+        .quiz-footer { flex-direction: column; }
+        .quiz-footer > div { display: flex; flex-direction: column; width: 100%; gap: 10px; }
+        .btn { width: 100%; }
+        .topic-list { grid-template-columns: 1fr; }
+      }
+    </style>
+</head>
+<body class="antialiased">
+  <!-- Sidebar -->
+  <aside class="sidebar hidden md:block" aria-label="Navegación principal">
+    <h1 class="sidebar-title">Guía de Apuntes</h1>
+    <nav id="main-tabs" class="flex flex-col">
+      <a href="#" data-tab="intro" class="active">Introducción</a>
+      <a href="#" data-tab="workflow">Flujo de Trabajo</a>
+      <a href="#" data-tab="activos">Activos vs Pasivos</a>
+      <a href="#" data-tab="techniques">Técnicas Activas</a>
+      <a href="#" data-tab="methods">Métodos</a>
+      <a href="#" data-tab="comparatives">Comparativas</a>
+      <a href="#" data-tab="apps">Apps</a>
+      <a href="#" data-tab="organization">Organización</a>
+      <a href="#" data-tab="ai">IA aplicada</a>
+      <a href="#" data-tab="quiz">Quiz</a>
+      <a href="#" data-tab="resources">Recursos y Bibliografía</a>
+    </nav>
+  </aside>
+
+  <div class="main-content-container">
+    <!-- Header móvil -->
+    <header class="mb-6 md:hidden">
+      <div class="bg-[var(--card-bg)] rounded-2xl p-6 border border-[var(--border-color)]">
+        <div class="flex items-center text-sm text-[var(--text-light)] mb-4" aria-label="Miga de pan">
+          <a href="#" class="hover:text-[var(--text-dark)]">Mis Cursos</a>
+          <span class="mx-2" aria-hidden="true">/</span>
+          <a href="#" class="hover:text-[var(--text-dark)]">Ingeniería</a>
+        </div>
+        <h1 class="text-2xl font-bold text-[var(--text-dark)]">Guía Interactiva de Apuntes para Ingenieros</h1>
+        <p class="mt-3 text-sm text-[var(--text-light)]">Actualizado en Julio, 2025</p>
+        <div class="mt-6 border-b border-[var(--border-color)]">
+          <nav id="mobile-tabs" class="flex space-x-4 no-scrollbar overflow-x-auto" aria-label="Pestañas">
+            <a href="#" data-tab="intro" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 active whitespace-nowrap">Intro</a>
+            <a href="#" data-tab="workflow" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Flujo</a>
+            <a href="#" data-tab="activos" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Activos</a>
+            <a href="#" data-tab="techniques" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Técnicas</a>
+            <a href="#" data-tab="methods" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Métodos</a>
+            <a href="#" data-tab="comparatives" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Comp.</a>
+            <a href="#" data-tab="apps" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Apps</a>
+            <a href="#" data-tab="organization" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Org.</a>
+            <a href="#" data-tab="ai" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">IA</a>
+            <a href="#" data-tab="quiz" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Quiz</a>
+            <a href="#" data-tab="resources" class="tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Recursos</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenido -->
+    <main id="main-content" class="px-4 md:px-6 py-8 max-w-6xl mx-auto">
+      <!-- Intro -->
+      <section id="content-intro" class="tab-pane">
+        <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+          <h2 class="text-2xl md:text-3xl font-bold mb-4">¡Bienvenido a la Guía!</h2>
+          <div class="space-y-5 text-[var(--text-light)]">
+            <p class="text-[var(--text-dark)] text-lg md:text-xl">Esta guía interactiva es la versión digital de nuestro <strong>taller práctico de 2 horas</strong> pensado para estudiantes de ingeniería y carreras afines. Aquí no solo aprenderás a transcribir, sino a <strong>transformar la información en conocimiento útil</strong> combinando lo mejor del papel, lo digital y la inteligencia artificial.</p>
+            <p class="text-[var(--text-dark)] text-base md:text-lg">A lo largo de estas secciones descubrirás cómo <strong>capturar información de forma activa</strong>, organizar tus apuntes en Notion, aplicar técnicas de estudio como Feynman y Active Recall, y aprovechar herramientas de IA como ChatGPT y NotebookLM para generar flashcards, resúmenes y preguntas tipo examen.</p>
+            <div class="bg-blue-50 p-4 rounded-xl">
+              <h3 class="text-lg font-semibold mb-2" style="color: var(--primary-blue);">En pocas palabras:</h3>
+              <ul class="list-disc list-inside space-y-1 text-[var(--text-dark)]">
+                <li>Aprendé métodos de apuntes efectivos sin leer de más.</li>
+                <li>Descubrí apps y trucos de IA para estudiar más rápido.</li>
+                <li>Organizá tu conocimiento con Notion y reducí el estrés.</li>
+                <li>Convertí tus apuntes en una herramienta activa de repaso.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selector de objetivo -->
+        <section id="interactive-selector" class="mt-8 bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+          <h2 class="text-xl md:text-2xl font-bold text-center mb-2">Encontrá tu Método Ideal</h2>
+          <p class="text-center text-[var(--text-light)] mb-8">Elegí tu objetivo para ver las técnicas recomendadas.</p>
+          <div id="goal-selector" class="flex flex-wrap justify-center gap-3 md:gap-4 mb-10" role="tablist">
+            <button data-goal="study" class="pill-button text-sm md:text-base font-semibold py-2 px-5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200" role="tab">🎓 Estudiar para un Examen</button>
+            <button data-goal="design" class="pill-button text-sm md:text-base font-semibold py-2 px-5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200" role="tab">💡 Idear un Nuevo Diseño</button>
+            <button data-goal="document" class="pill-button text-sm md:text-base font-semibold py-2 px-5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200" role="tab">📋 Documentar un Proyecto</button>
+            <button data-goal="research" class="pill-button text-sm md:text-base font-semibold py-2 px-5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200" role="tab">🔬 Investigar a Largo Plazo</button>
+          </div>
+          <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
+      </section>
+
+      <!-- Flujo de trabajo -->
+      <section id="content-workflow" class="tab-pane" style="display:none;">
+        <div class="text-center mb-12">
+          <h2 class="text-2xl sm:text-3xl font-bold">El Flujo de Trabajo del Ingeniero Moderno</h2>
+          <p class="text-lg text-[var(--text-light)] mt-2 max-w-2xl mx-auto">Combina lo mejor de tres mundos: analógico, digital y la inteligencia artificial.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center max-w-5xl mx-auto">
+          <!-- Card 1: Captura Analógica -->
+          <div class="workflow-card">
+            <div class="workflow-card-icon mx-auto bg-teal-100 text-teal-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold">1. Captura Analógica</h3>
+            <p class="text-sm text-[var(--text-light)] mt-1">Papel o tablet para ideación y bocetos. Máxima creatividad y retención.</p>
+          </div>
+          <!-- Card 2: Organización Digital -->
+          <div class="workflow-card">
+            <div class="workflow-card-icon mx-auto bg-blue-100 text-blue-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold">2. Organización Digital</h3>
+            <p class="text-sm text-[var(--text-light)] mt-1">Refiná en una app. Facilita búsqueda, organización y colaboración.</p>
+          </div>
+          <!-- Card 3: Potenciación con IA -->
+          <div class="workflow-card">
+            <div class="workflow-card-icon mx-auto bg-purple-100 text-purple-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold">3. Potenciación con IA</h3>
+            <p class="text-sm text-[var(--text-light)] mt-1">Flashcards, resúmenes y simulacros. De apuntes a acción.</p>
+          </div>
+        </div>
+        <!-- Synergy callout between analog, digital and IA -->
+        <div class="synergy-card mt-8">
+          <div class="synergy-icon">⚡️</div>
+          <div>
+            <h3 class="text-2xl font-bold mb-2 text-purple-700">¿Por qué combinar los tres?</h3>
+            <p class="text-base text-[var(--text-dark)]">Tomar apuntes a mano despierta tu creatividad y retención. Pasarlos a un sistema digital como Notion los hace buscables y organizados. Potenciarlos con IA permite generar flashcards, resúmenes y prácticas personalizadas en segundos. Usar los tres te da un flujo de estudio completo y adaptable.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activos vs Pasivos (idéntico al tuyo, conservado) -->
+      <section id="content-activos" class="tab-pane" style="display:none;">
+        <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+            <h2 class="text-3xl font-bold text-center mb-4">¿ Apuntes pasivos o activos ?</h2>
+            <p class="text-lg text-[var(--text-light)] text-center max-w-2xl mx-auto mb-8">Elegir <strong>cómo</strong> tomás apuntes cambia todo. Tomar apuntes de forma <strong>pasiva</strong> es copiar casi todo lo que oyes sin procesarlo: tu cabeza se apaga. En cambio, los apuntes <strong>activos</strong> implican pensar mientras escribís: seleccionás ideas clave, usás tus propias palabras y conectás la información con lo que ya sabés.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                <!-- Tarjeta de Apuntes Pasivos -->
+                <div class="passive-notes-card">
+                    <div class="flex items-center mb-6">
+                        <span class="text-4xl mr-4">😴</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-red-600">Apuntes Pasivos</h3>
+                            <p class="text-sm text-[var(--text-dark)]">"El camino fácil que no te lleva lejos"</p>
+                        </div>
+                    </div>
+                    <ul class="list-none space-y-4">
+                        <li class="feature-item">
+                            <span class="card-icon-passive">✗</span>
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-dark)]">Copiar sin pensar</h4>
+                                <p class="text-sm text-[var(--text-light)]">Transcribís casi textualmente lo que dice el profesor, sin filtrar qué es importante y qué no.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <span class="card-icon-passive">✗</span>
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-dark)]">Falsa sensación de aprendizaje</h4>
+                                <p class="text-sm text-[var(--text-light)]">Llenás páginas y páginas, pero en realidad no estás entendiendo a fondo el contenido. Es una trampa que te hace creer que estudiaste.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <span class="card-icon-passive">✗</span>
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-dark)]">Menor retención</h4>
+                                <p class="text-sm text-[var(--text-light)]">Como no procesás activamente la información, la retención y la comprensión se ven afectadas. Olvidarás las cosas más rápido.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Tarjeta de Apuntes Activos -->
+                <div class="active-notes-card">
+                    <div class="flex items-center mb-6">
+                        <span class="text-4xl mr-4">🧠</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-blue-700">Apuntes Activos</h3>
+                            <p class="text-sm text-[var(--text-dark)]">"El camino del Ingeniero"</p>
+                        </div>
+                    </div>
+                    <ul class="list-none space-y-4">
+                        <li class="feature-item">
+                            <span class="card-icon-active">✓</span>
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-dark)]">Mejor retención y comprensión</h4>
+                                <p class="text-sm text-[var(--text-light)]">Al reformular con tus palabras, tu cerebro consolida mejor la información, lo que lleva a una comprensión más profunda y a una mejor retención a largo plazo.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <span class="card-icon-active">✓</span>
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-dark)]">Apuntes que sí sirven</h4>
+                                <p class="text-sm text-[var(--text-light)]">Creás apuntes con una estructura clara que te ayudan a distinguir las ideas principales y facilitan el repaso para los exámenes.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <span class="card-icon-active">✓</span>
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-dark)]">Más atención en clase</h4>
+                                <p class="text-sm text-[var(--text-light)]">Al participar activamente en la toma de notas, te mantenés más atento e interesado durante la clase. Adiós al "piloto automático".</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="text-lg font-bold text-blue-700">Beneficio Clave</h4>
+                        <p class="text-sm text-[var(--text-dark)]">Aprobás más rápido y con menos estrés. Al entender y recordar mejor, reducís la frustración y mejorás tus notas.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="synergy-card mt-8">
+              <div class="synergy-icon">🧠</div>
+              <div>
+                <h3 class="text-2xl font-bold mb-2 text-purple-700">¿Qué Pasa Dentro de tu Cerebro?</h3>
+                <p class="text-base text-[var(--text-dark)]">Anotar en **modo pasivo** es como ver un partido desde la tribuna. En **modo activo**, sos el que juega. Obligás a tu cerebro a "hacer" algo con la información: la analiza, la organiza y crea conexiones. Este esfuerzo extra es lo que construye una memoria sólida y un entendimiento real.</p>
+              </div>
+            </div>
+        </div>
+      </section>
+
+      <!-- Técnicas activas (conservado) -->
+      <section id="content-techniques" class="tab-pane" style="display:none;">
+        <!-- Resumen de por qué las técnicas activas importan -->
+        <div class="bg-yellow-50 p-4 rounded-xl mb-6">
+          <h3 class="text-lg font-semibold mb-2" style="color: #b45309;">¿Por qué técnicas activas?</h3>
+          <p class="text-sm text-[var(--text-dark)]">Las técnicas activas obligan a tu cerebro a recuperar y aplicar la información. Esto multiplica la retención y reduce el tiempo de estudio. Combina explicación, práctica y repaso espaciado para aprender de verdad.</p>
+        </div>
+        <section class="space-y-8">
+            <!-- Consejos visuales -->
+            <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                <h2 class="text-2xl font-bold mb-4">Consejos visuales para apuntes útiles</h2>
+                <p class="text-[var(--text-light)]">Además del contenido, la presentación visual de tus apuntes puede hacer una gran diferencia. Algunos consejos para que tus apuntes en papel sean claros y fáciles de repasar:</p>
+                <ul class="list-disc list-inside mt-4 space-y-2 text-[var(--text-dark)]">
+                    <li><strong>Títulos y subtítulos</strong>: Destaca el tema principal y secciones usando títulos cortos. Subráyalos, ponles color o simplemente escríbelos con letra más grande para distinguirlos.</li>
+                    <li><strong>Viñetas y listas</strong>: Organiza la información en listados cuando sea posible (como definiciones, pasos de un proceso, ventajas/desventajas). Las listas con viñetas o números hacen que los datos sean más digeribles.</li>
+                    <li><strong>Flechas y diagramas</strong>: Usa flechas para conectar ideas relacionadas (por ejemplo, causa → efecto). Si un concepto se vincula con otro visto antes, dibuja una flecha o un esquema que muestre esa relación. Un pequeño diagrama o dibujo vale más que párrafos enteros.</li>
+                    <li><strong>Espacios en blanco</strong>: No satures la página escribiendo sin parar. Deja márgenes o huecos entre ideas. Un espacio en blanco bien ubicado permite que tu vista descanse y te da lugar para agregar notas adicionales más tarde.</li>
+                    <li><strong>Anota tus dudas</strong>: Si algo no te queda claro en la clase, márcalo. Puedes poner un signo de interrogación ¿? al margen o escribir la pregunta directamente en la columna de ideas clave (si usas Cornell) u otro lugar visible. Así, cuando repasas sabrás qué debes investigar después.</li>
+                    <li><strong>Usa símbolos y abreviaturas</strong>: Desarrolla un kit sencillo de símbolos personales para ganar velocidad. Por ejemplo, una flecha hacia arriba ↑ para “aumenta”, una bombilla 💡 para indicar “idea interesante”, un asterisco (*) para “importante”, etc. También utiliza abreviaturas comunes (por ej., “ej.” para ejemplo, “def.” para definición) para escribir más rápido sin sacrificar claridad.</li>
+                </ul>
+            </div>
+            <!-- Convertir apuntes en herramienta -->
+            <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                <h2 class="text-2xl font-bold mb-4">Convierte tus apuntes en tu herramienta de estudio</h2>
+                <p class="text-[var(--text-light)]">Tomar apuntes útiles es solo el primer paso. Luego debes usar esos apuntes activamente para potenciar tu estudio. Aquí tienes algunas formas de transformar tus apuntes en recursos de aprendizaje:</p>
+                <ul class="list-disc list-inside mt-4 space-y-2 text-[var(--text-dark)]">
+                    <li><strong>Flashcards o tarjetas de memoria</strong>: Extrae preguntas y conceptos clave de tus apuntes (especialmente de la columna izquierda si usas Cornell) y conviértelos en flashcards.</li>
+                    <li><strong>Mapas mentales</strong>: Toma un tema de tus apuntes y dibuja un mapa mental en otra hoja. Coloca el concepto principal en el centro y ramifica subtemas o ideas relacionadas.</li>
+                    <li><strong>Explicación con tus palabras (método Feynman)</strong>: Usa tus apuntes como base para explicarle el tema a alguien o a ti mismo en voz alta, como si estuvieras enseñando.</li>
+                    <li><strong>Autoevaluación periódica</strong>: No dejes tus apuntes guardados hasta la noche antes del examen. Cada semana, dedica unos minutos a repasarlos y preguntarte si los recuerdas.</li>
+                </ul>
+                <p class="mt-4 italic text-[var(--text-light)]">Consejo final: Mantén tus apuntes vivos. Si al releerlos algo no se entiende, complétalo o reescríbelo mientras aún recuerdas el tema.</p>
+            </div>
+            <!-- Técnicas activas de estudio -->
+            <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                <h2 class="text-2xl font-bold mb-4">Técnicas activas de estudio</h2>
+                <p class="text-[var(--text-light)] mb-4">Memorizar leyendo en bucle no funciona. Las técnicas activas obligan a tu cerebro a recuperar y usar la información, multiplicando la retención. Estas son las cuatro más efectivas:</p>
+                <ul class="list-disc list-inside space-y-2 text-[var(--text-dark)]">
+                    <li><strong>Método Feynman</strong> — Explicá el tema con tus palabras como si enseñaras a un amigo. Detectá huecos, aclaralos y repetí.</li>
+                    <li><strong>Active Recall</strong> — Tapá tus apuntes y hacete preguntas. Respondé antes de mirar la solución.</li>
+                    <li><strong>Repetición espaciada</strong> — Repasá en intervalos crecientes (día 0, 2, 7, 15) para consolidar la memoria a largo plazo.</li>
+                    <li><strong>Flashcards efectivas</strong> — Una pregunta clara por tarjeta, respuesta breve. Mezclá tarjetas nuevas con antiguas.</li>
+                </ul>
+                <div class="mt-6 p-4 border-l-4 border-[var(--primary-blue)] bg-blue-50">
+                    <p class="text-[var(--text-light)]"><em>¿Qué técnica elegir?</em><br>
+                    • <strong>Feynman</strong> para teoría compleja.<br>
+                    • <strong>Flashcards</strong> para definiciones o fórmulas.<br>
+                    • <strong>Active Recall</strong> para parciales teóricos.<br>
+                    • Combiná todas con repetición espaciada para resultados duraderos.</p>
+                </div>
+            </div>
+        </section>
+      </section>
+
+      <!-- Métodos -->
+      <section id="content-methods" class="tab-pane" style="display:none;">
+        <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+          <h2 class="text-xl md:text-2xl font-bold mb-4">Métodos de Toma de Apuntes</h2>
+          <p class="text-[var(--text-light)] mb-6">Explorá cada método y descubrí cuál se adapta mejor a tu necesidad.</p>
+          <div id="method-tabs-wrapper">
+            <nav id="method-tabs" class="flex space-x-4 md:space-x-6 no-scrollbar overflow-x-auto border-b-2 border-[var(--border-color)] mb-6">
+              <a href="#" data-method="cornell" class="method-tab active py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Método Cornell</a>
+              <a href="#" data-method="sketchnoting" class="method-tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Sketchnoting</a>
+              <a href="#" data-method="mindmap" class="method-tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Mapas Mentales</a>
+              <a href="#" data-method="zettelkasten" class="method-tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Zettelkasten</a>
+              <a href="#" data-tab="linear" class="method-tab py-3 px-1 text-base font-medium text-[var(--text-light)] hover:text-[var(--text-dark)] transition-colors duration-200 whitespace-nowrap">Notas Lineales</a>
+            </nav>
+          </div>
+          <div id="method-content"></div>
+        </div>
+      </section>
+
+      <!-- Comparativas / Apps / Organización / IA (conservados) -->
+      <section id="content-comparatives" class="tab-pane" style="display:none;">
+          <section class="space-y-8">
+              <!-- Tabla comparativa de métodos de apuntes -->
+              <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                  <h2 class="text-2xl font-bold mb-4 text-center">Métodos de Toma de Apuntes</h2>
+                  <p class="text-center text-[var(--text-dark)] mb-6">Comparativa de los principales métodos utilizados por ingenieros para capturar y procesar información.</p>
+                  <!-- Resumen rápido para quienes leen poco -->
+                  <div class="bg-blue-50 p-4 rounded-xl mb-6 text-gray-700">
+                      <h3 class="text-lg font-semibold text-[var(--primary-blue)] mb-2">Tip rápido:</h3>
+                      <ul class="list-disc list-inside space-y-1">
+                          <li><strong>Cornell</strong>: lo mejor para fórmulas y teoría.</li>
+                          <li><strong>Sketchnoting</strong>: ideal si sos visual y creativo.</li>
+                          <li><strong>Mapas Mentales</strong>: perfecto para brainstorming y planificación.</li>
+                          <li><strong>Zettelkasten</strong>: construye una red de conocimiento viva.</li>
+                          <li><strong>Lineal / Esquema</strong>: claro y rápido para manuales y actas.</li>
+                      </ul>
+                  </div>
+                  <details class="overflow-x-auto text-left">
+                      <summary class="cursor-pointer font-semibold text-[var(--primary-blue)] py-2">Ver comparativa detallada (opcional)</summary>
+                      <div class="mt-2 table-container">
+                      <table class="min-w-full text-sm">
+                          <thead>
+                              <tr>
+                                  <th class="p-2">Método</th>
+                                  <th class="p-2">Principios Cognitivos</th>
+                                  <th class="p-2">Aplicación Óptima</th>
+                                  <th class="p-2">Ventajas</th>
+                                  <th class="p-2">Limitaciones</th>
+                                  <th class="p-2">Plataformas</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr class="bg-white">
+                                  <td class="p-2">Cornell</td>
+                                  <td class="p-2">Codificación semántica; recuperación activa; elaboración; repetición espaciada.</td>
+                                  <td class="p-2">Fórmulas, definiciones, textos teóricos.</td>
+                                  <td class="p-2">Estructura clara; revisión activa; pensamiento crítico.</td>
+                                  <td class="p-2">Rigidez; menos ágil para diagramas.</td>
+                                  <td class="p-2">Papel · PC · Tablet</td>
+                              </tr>
+                              <tr class="bg-gray-50">
+                                  <td class="p-2">Sketchnoting</td>
+                                  <td class="p-2">Doble codificación; pensamiento holístico; creatividad.</td>
+                                  <td class="p-2">Diagramas, ideación, visualización de procesos.</td>
+                                  <td class="p-2">Creativo; retención visual alta; simplifica lo complejo.</td>
+                                  <td class="p-2">Más lento; no ideal para texto detallado.</td>
+                                  <td class="p-2">Papel · Tablet ✏️</td>
+                              </tr>
+                              <tr class="bg-white">
+                                  <td class="p-2">Mapas Mentales</td>
+                                  <td class="p-2">Procesamiento profundo; elaboración; distintividad.</td>
+                                  <td class="p-2">Brainstorming, planificación, arquitectura software.</td>
+                                  <td class="p-2">Visión holística; colaboración; memoria a largo plazo.</td>
+                                  <td class="p-2">Puede desordenarse; requiere mantenimiento.</td>
+                                  <td class="p-2">Papel · PC · Tablet</td>
+                              </tr>
+                              <tr class="bg-gray-50">
+                                  <td class="p-2">Zettelkasten</td>
+                                  <td class="p-2">Notas atómicas; enlaces bidireccionales; asociación.</td>
+                                  <td class="p-2">Investigación, red de conocimiento vivo.</td>
+                                  <td class="p-2">Serendipia; a prueba de futuro; creatividad.</td>
+                                  <td class="p-2">PC · Tablet · Móvil</td>
+                                  <td class="p-2">Curva de aprendizaje; disciplina diaria.</td>
+                              </tr>
+                              <tr class="bg-white">
+                                  <td class="p-2">Lineal / Esquema</td>
+                                  <td class="p-2">Estructura jerárquica; codificación rápida.</td>
+                                  <td class="p-2">Especificaciones, actas, manuales.</td>
+                                  <td class="p-2">Claridad; formato formal; fácil de seguir.</td>
+                                  <td class="p-2">Transcripción superficial; poca creatividad.</td>
+                                  <td class="p-2">Papel · PC · Tablet</td>
+                              </tr>
+                          </tbody>
+                      </table>
+                      </div>
+                  </details>
+                  <!-- Aplicación práctica de los métodos de apuntes -->
+                  <div class="bg-green-50 p-4 rounded-xl mt-6 text-[var(--text-light)]">
+                      <h3 class="text-lg font-semibold mb-2" style="color: var(--primary-green);">Cómo aplicarlos:</h3>
+                      <ul class="list-disc list-inside space-y-1 text-gray-700">
+                          <li><strong>Cornell</strong>: resume fórmulas y definiciones y practica con preguntas de recuerdo activo.</li>
+                          <li><strong>Sketchnoting</strong>: dibuja procesos, circuitos o esquemas para visualizar mejor la información.</li>
+                          <li><strong>Mapas Mentales</strong>: crea un mapa al terminar un tema para ver conexiones y detectar lagunas.</li>
+                          <li><strong>Zettelkasten</strong>: escribe notas atómicas y enlázalas para construir tu propio conocimiento.</li>
+                          <li><strong>Esquema Lineal</strong>: usa listas jerárquicas para especificaciones, actas o manuales técnicos.</li>
+                      </ul>
+                  </div>
+              </div>
+              <!-- Tabla comparativa de herramientas digitales -->
+              <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                  <h2 class="text-2xl font-bold mb-4 text-center">Herramientas Digitales Clave</h2>
+                  <p class="text-center text-[var(--text-dark)] mb-6">Apps y plataformas que potencian la toma de apuntes, la colaboración y la gestión del conocimiento.</p>
+                  <!-- Resumen rápido de herramientas para estudiantes ocupados -->
+                  <div class="bg-green-50 p-4 rounded-xl mb-6 text-gray-700">
+                      <h3 class="text-lg font-semibold mb-2" style="color: #059669;">Top 3:</h3>
+                      <ul class="list-disc list-inside space-y-1">
+                          <li><strong>Notion</strong> – versátil para bases de datos y tareas.</li>
+                          <li><strong>OneNote</strong> – perfecto para notas manuscritas y audio.</li>
+                          <li><strong>Obsidian</strong> – ideal para tesis y proyectos largos.</li>
+                      </ul>
+                  </div>
+                  <details class="overflow-x-auto text-left">
+                      <summary class="cursor-pointer font-semibold text-[var(--primary-blue)] py-2">Ver comparativa detallada de herramientas (opcional)</summary>
+                      <div class="mt-2 table-container">
+                      <table class="min-w-full text-sm">
+                          <thead>
+                              <tr>
+                                  <th class="p-2">Herramienta</th>
+                                  <th class="p-2">Tipo</th>
+                                  <th class="p-2">Características</th>
+                                  <th class="p-2">Plataformas</th>
+                                  <th class="p-2">Costo</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr class="bg-white">
+                                  <td class="p-2">Microsoft OneNote</td>
+                                  <td class="p-2">Cuaderno digital</td>
+                                  <td class="p-2">Secciones & páginas; audio/vídeo; anotación PDF.</td>
+                                  <td class="p-2">PC · Web · Móvil</td>
+                                  <td class="p-2">Freemium</td>
+                              </tr>
+                              <tr class="bg-gray-50">
+                                  <td class="p-2">Notion</td>
+                                  <td class="p-2">Workspace + KMS</td>
+                                  <td class="p-2">Bases de datos; plantillas; colaboración.</td>
+                                  <td class="p-2">PC · Web · Móvil</td>
+                                  <td class="p-2">Freemium</td>
+                              </tr>
+                              <tr class="bg-white">
+                                  <td class="p-2">Evernote</td>
+                                  <td class="p-2">Agregador info</td>
+                                  <td class="p-2">Etiquetas potentes y búsqueda en PDF/imagen.</td>
+                                  <td class="p-2">PC · Web · Móvil</td>
+                                  <td class="p-2">Freemium</td>
+                              </tr>
+                              <tr class="bg-gray-50">
+                                  <td class="p-2">GoodNotes</td>
+                                  <td class="p-2">Manuscrita</td>
+                                  <td class="p-2">Stylus fluido; plantillas; markup PDF.</td>
+                                  <td class="p-2">iPad / iOS</td>
+                                  <td class="p-2">Pago único</td>
+                              </tr>
+                              <tr class="bg-white">
+                                  <td class="p-2">Supernotes</td>
+                                  <td class="p-2">STEM notes</td>
+                                  <td class="p-2">Ecuaciones LaTeX; IA; jerarquías.</td>
+                                  <td class="p-2">PC · Web · Móvil</td>
+                                  <td class="p-2">Freemium</td>
+                              </tr>
+                              <tr class="bg-gray-50">
+                                  <td class="p-2">Obsidian</td>
+                                  <td class="p-2">Zettelkasten</td>
+                                  <td class="p-2">Markdown + plugins; graph view.</td>
+                                  <td class="p-2">PC · Tablet · Móvil</td>
+                                  <td class="p-2">Gratis</td>
+                              </tr>
+                          </tbody>
+                      </table>
+                      </div>
+                  </details>
+                  <!-- Tabla comparativa de IA -->
+                  <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                      <h2 class="text-2xl font-bold mb-4 text-center">IA en Gestión del Conocimiento</h2>
+                      <p class="text-center text-[var(--text-dark)] mb-6">Cómo la Inteligencia Artificial potencia el estudio, la colaboración y el diseño en ingeniería.</p>
+                      <!-- Resumen rápido de IA para estudiantes con poco tiempo -->
+                      <div class="bg-purple-50 p-4 rounded-xl mb-6 text-gray-700">
+                          <h3 class="text-lg font-semibold mb-2" style="color: #7C3AED;">Usos clave:</h3>
+                          <ul class="list-disc list-inside space-y-1">
+                              <li>Generar flashcards inteligentes con memoria espaciada.</li>
+                              <li>Resumir reuniones y documentos extensos.</li>
+                              <li>Explorar diseños y conceptos mediante IA generativa.</li>
+                          </ul>
+                      </div>
+                      <details class="overflow-x-auto text-left">
+                          <summary class="cursor-pointer font-semibold text-[var(--primary-blue)] py-2">Ver comparativa detallada de IA (opcional)</summary>
+                          <div class="mt-2 table-container">
+                          <table class="min-w-full text-sm">
+                              <thead>
+                                  <tr>
+                                      <th class="p-2">Área</th>
+                                      <th class="p-2">Función IA</th>
+                                      <th class="p-2">Herramientas</th>
+                                      <th class="p-2">Beneficio</th>
+                                      <th class="p-2">Uso ideal</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <tr class="bg-white">
+                                      <td class="p-2">Flashcards inteligentes</td>
+                                      <td class="p-2">Auto-generación + SRS</td>
+                                      <td class="p-2">Anki · Quizlet · Intellecs</td>
+                                      <td class="p-2">Retención ↑; tiempo ↓</td>
+                                      <td class="p-2">Exámenes · fórmulas</td>
+                                  </tr>
+                                  <tr class="bg-gray-50">
+                                      <td class="p-2">Resumen de reuniones</td>
+                                      <td class="p-2">Transcript + resumen</td>
+                                      <td class="p-2">Fireflies.ai</td>
+                                      <td class="p-2">Decisiones claras</td>
+                                      <td class="p-2">Post-reunión</td>
+                                  </tr>
+                                  <tr class="bg-white">
+                                      <td class="p-2">Knowledge Graphs</td>
+                                      <td class="p-2">Vincular datos</td>
+                                      <td class="p-2">ClickUp Brain · Turing KG</td>
+                                      <td class="p-2">Insights ocultos</td>
+                                      <td class="p-2">Investigación compleja</td>
+                                  </tr>
+                                  <tr class="bg-gray-50">
+                                      <td class="p-2">Diseño generativo</td>
+                                      <td class="p-2">Explora & optimiza</td>
+                                      <td class="p-2">Altair · Autodesk · NX</td>
+                                      <td class="p-2">Innovación rápida</td>
+                                      <td class="p-2">Ideación · optimización</td>
+                                  </tr>
+                                  <tr class="bg-white">
+                                      <td class="p-2">Conceptos 2D → 3D</td>
+                                      <td class="p-2">Boceto → modelo 3D</td>
+                                      <td class="p-2">Veras · Archistar · TestFit</td>
+                                      <td class="p-2">Validación temprana</td>
+                                      <td class="p-2">Fase conceptual</td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                          </div>
+                      </details>
+                  </div>
+              </section>
+      </section>
+      
+      <!-- Apps y Cuadernos -->
+      <section id="content-apps" class="tab-pane" style="display:none;">
+          <section class="space-y-12">
+              <!-- Apps para tomar notas -->
+              <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                  <h2 class="text-2xl font-bold mb-4 text-center">Aplicaciones para Tomar Notas</h2>
+                  <p class="text-center text-[var(--text-dark)] max-w-lg mx-auto mb-8">Primero verás las apps que sincronizan notebook + móvil (clave si usas varios dispositivos). Luego, separamos las opciones pensadas principalmente para Notebook y para Android / iOS.</p>
+                  <!-- Multiplataforma -->
+                  <h3 class="text-xl font-semibold mb-4">Multiplataforma (sincroniza Notebook + Android / iOS)</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <!-- Notion + Notion AI -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://www.notion.so/" target="_blank" rel="noopener">Notion + Notion AI</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: Multiplataforma</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Bases de datos, wikis y gestión de tareas.</li>
+                              <li>IA integrada para resumir o crear flashcards.</li>
+                              <li>Sincroniza en tiempo real entre web, desktop y móvil.</li>
+                          </ul>
+                      </article>
+                      <!-- OneNote -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://www.onenote.com/" target="_blank" rel="noopener">Microsoft OneNote</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: Multiplataforma</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Lienzo infinito para texto, tinta y archivos.</li>
+                              <li>Secciones y páginas para cada materia.</li>
+                              <li>Sincroniza vía OneDrive entre PC, móvil y web.</li>
+                          </ul>
+                      </article>
+                      <!-- Evernote -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://www.evernote.com/" target="_blank" rel="noopener">Evernote</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: Multiplataforma</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Etiquetas potentes y búsqueda en PDF/imagen.</li>
+                              <li>Plantillas y modo escáner de documentos.</li>
+                              <li>Acceso rápido a notas desde cualquier dispositivo.</li>
+                          </ul>
+                      </article>
+                      <!-- Google Keep -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://keep.google.com/" target="_blank" rel="noopener">Google Keep</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: Multiplataforma</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Notas rápidas, listas y recordatorios con Google Calendar.</li>
+                              <li>Widget de captura instantánea en móvil.</li>
+                              <li>Sincronización inmediata con tu cuenta Google.</li>
+                          </ul>
+                      </article>
+                  </div>
+                  <!-- Solo Notebook -->
+                  <h3 class="text-xl font-semibold mt-10 mb-4">Solo Notebook (PC / macOS)</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <!-- Obsidian -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://obsidian.md/" target="_blank" rel="noopener">Obsidian</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: Markdown / Grafo de conocimiento</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Notas Markdown locales y enlaces bidireccionales.</li>
+                              <li>Plugins para diagramas, flashcards y más.</li>
+                              <li>Ideal para tesis y proyectos de investigación.</li>
+                          </ul>
+                      </article>
+                      <!-- Joplin -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://joplinapp.org/" target="_blank" rel="noopener">Joplin</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: Open‑source / Markdown</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Notas cifradas y sincronización propia o cloud.</li>
+                              <li>Web-clipper para guardar páginas.</li>
+                              <li>Buena opción si priorizas privacidad y texto plano.</li>
+                          </ul>
+                      </article>
+                  </div>
+                  <!-- Android / iOS -->
+                  <h3 class="text-xl font-semibold mt-10 mb-4">Android / iOS (Tablet o Móvil)</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <!-- GoodNotes -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://www.goodnotes.com/" target="_blank" rel="noopener">GoodNotes 6</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: iPad / Stylus</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Reconocimiento de escritura y plantillas Cornell.</li>
+                              <li>Motor de tinta fluida para diagramas.</li>
+                              <li>Versión beta para Windows y Android en curso.</li>
+                          </ul>
+                      </article>
+                      <!-- Notability -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://www.gingerlabs.com/" target="_blank" rel="noopener">Notability</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: iPad / Audio-Notas</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Graba audio sincronizado con tus trazos.</li>
+                              <li>Exporta PDF anotados en segundos.</li>
+                              <li>Función de “Re-lecture” para repasar.</li>
+                          </ul>
+                      </article>
+                      <!-- INKredible -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://www.inkredibleapp.com/" target="_blank" rel="noopener">INKredible</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: Android</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Sensación de escritura “como en papel”.</li>
+                              <li>Soporte para dibujos y capas.</li>
+                              <li>Interfaz minimalista y sin distracciones.</li>
+                          </ul>
+                      </article>
+                      <!-- FiiNote -->
+                      <article class="flex flex-col bg-white border border-[var(--border-color)] rounded-xl p-6 shadow-sm">
+                          <h4 class="text-lg font-bold mb-2"><a href="https://play.google.com/store/apps/details?id=com.fiistudio.fiinote" target="_blank" rel="noopener">FiiNote</a></h4>
+                          <p class="text-sm font-semibold text-[var(--primary-blue)] mb-2">Tipo: Android</p>
+                          <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1 flex-grow">
+                              <li>Combina teclado, stylus, fotos y voz en la misma página.</li>
+                              <li>Perfecta para notas mixtas y listas.</li>
+                              <li>Widget de acceso rápido y backup en la nube.</li>
+                          </ul>
+                      </article>
+                  </div>
+              </div>
+              <!-- Tus cuadernos universales -->
+              <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                  <h2 class="text-2xl font-bold mb-4 text-center">Tus Cuadernos Universales</h2>
+                  <p class="text-center text-[var(--text-light)] max-w-lg mx-auto mb-8">Con sólo tres herramientas cubres el 95 % de las situaciones: captura, organización avanzada y trabajo sin conexión.</p>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div class="flex flex-col items-center bg-white p-6 rounded-xl border border-[var(--border-color)] shadow-sm">
+                          <div class="text-5xl mb-3">📚</div>
+                          <h3 class="text-lg font-semibold mb-2">Notion + Notion AI</h3>
+                          <p class="text-sm text-[var(--text-dark)]">Bases de datos, wikis y tareas en un solo lugar. Sincroniza en tiempo real entre web, desktop y móvil, y su IA resume o crea flashcards al instante.</p>
+                      </div>
+                      <div class="flex flex-col items-center bg-white p-6 rounded-xl border border-[var(--border-color)] shadow-sm">
+                          <div class="text-5xl mb-3">📝</div>
+                          <h3 class="text-lg font-bold mb-2">Microsoft OneNote</h3>
+                          <p class="text-sm text-[var(--text-dark)]">Lienzo infinito para texto, tinta, audio y archivos. Gratuito, multiplataforma y con copia de seguridad automática en OneDrive.</p>
+                      </div>
+                      <div class="flex flex-col items-center bg-white p-6 rounded-xl border border-[var(--border-color)] shadow-sm">
+                          <div class="text-5xl mb-3">🗂️</div>
+                          <h3 class="text-lg font-semibold mb-2">Obsidian</h3>
+                          <p class="text-sm text-[var(--text-dark)]">Notas Markdown locales y grafo visual de ideas. Funciona sin conexión, admite plugins y mantiene tu información 100 % bajo tu control.</p>
+                      </div>
+                  </div>
+                  <div class="mt-8 p-6 rounded-xl border border-[var(--border-color)] bg-blue-50 text-[var(--text-light)]">
+                      <p class="font-semibold italic text-gray-700">Mantén tu ecosistema simple: captura tus ideas con OneNote, dales forma y contexto en Notion, y conserva tu laboratorio personal en Obsidian.</p>
+                  </div>
+              </div>
+          </section>
+      </section>
+
+      <!-- IA aplicada al estudio -->
+      <section id="content-ai" class="tab-pane" style="display:none;">
+          <section class="space-y-8">
+              <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                  <h2 class="text-2xl font-bold mb-4">Inteligencia Artificial aplicada al estudio</h2>
+              <p class="text-[var(--text-light)]">La IA es un asistente, no un reemplazo. Usada con criterio, ahorra tiempo y profundiza tu comprensión.</p>
+              <!-- Callout for IA express guide -->
+              <div class="bg-blue-50 p-4 rounded-xl mt-6">
+                <h3 class="text-lg font-semibold mb-2" style="color: var(--primary-blue);">Guía exprés</h3>
+                <ul class="list-disc list-inside space-y-1 text-[var(--text-dark)] text-sm">
+                  <li><strong>Ahorra tiempo</strong>: genera resúmenes, flashcards y preguntas con IA.</li>
+                  <li><strong>Flujo sugerido</strong>: captura tus PDFs, pide un resumen Cornell, crea flashcards y preguntas tipo examen, y planifica repaso espaciado.</li>
+                  <li><strong>Prompt Engineering</strong>: construí prompts efectivos usando ROL + TAREA + CONTEXTO + FORMATO + TONO.</li>
+                  <li><strong>Respeto a tu razonamiento</strong>: verificá cada respuesta con bibliografía oficial y refiná tus prompts.</li>
+                </ul>
+              </div>
+                  <ul class="list-decimal list-inside mt-4 space-y-2 text-[var(--text-dark)]">
+                      <li><strong>ChatGPT como tutor</strong>: Pedí explicaciones simples, ejemplos o preguntas tipo examen. Pegá un fragmento de tu apunte y pedile una versión más clara.</li>
+                      <li><strong>NotebookLM para fuentes</strong>: Subí PDFs y consultalos con preguntas. El sistema cita de dónde sale cada respuesta.</li>
+                      <li><strong>Cuándo sí y cuándo no</strong>:
+                          <ul class="list-disc list-inside ml-5 mt-1 space-y-1">
+                              <li>Sí: generar preguntas, resumir textos densos, proponer ejemplos.</li>
+                              <li>No: copiar literalmente una tarea o dejar de pensar por tu cuenta.</li>
+                          </ul>
+                      </li>
+                      <li><strong>Integración con Notion y técnicas activas</strong>: Usá IA para crear flashcards, plan de repaso o simulación de examen oral.</li>
+                      <li><strong>Precauciones</strong>: Verificá siempre las respuestas; la IA puede inventar datos. Contrastá con apuntes y libros.</li>
+                  </ul>
+              </div>
+          </section>
+      </section>
+      
+      <!-- Organización académica en Notion -->
+      <section id="content-organization" class="tab-pane" style="display:none;">
+          <section class="space-y-8">
+              <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                  <h2 class="text-2xl font-bold mb-4">Organización académica en Notion</h2>
+                  <p class="text-[var(--text-light)] mb-4">Notion es un espacio digital flexible que te permite centralizar tus materias, tareas y apuntes en un solo lugar. Con unas pocas páginas y bases de datos, verás qué cursás, qué tenés que hacer y cuándo lo entregás, sin perder tiempo buscando archivos.</p>
+                  <ol class="list-decimal list-inside space-y-3 text-[var(--text-dark)]">
+                      <li><span class="mr-2">📘</span><strong>Crea tu base de materias</strong>: Página “Cursada 2025” → tabla con: Materia, Año, Docente, Dificultad, Estado y enlace al programa.</li>
+                      <li><span class="mr-2">📅</span><strong>Arma la agenda semanal</strong>: Vista Calendario para parciales, entregas y tareas con recordatorios. Filtrá por materia para enfocarte.</li>
+                      <li><span class="mr-2">🔗</span><strong>Vinculá apuntes, resúmenes y checklists</strong>: En cada clase crea una página hija con plantilla Cornell, añeja checklist de dudas y enlaza a su materia.</li>
+                      <li><span class="mr-2">🧩</span><strong>Plantillas reutilizables</strong>: Diseñá una plantilla “Clase” con título, fecha, secciones Cornell y botón para generar flashcards.</li>
+                      <li><span class="mr-2">🧠</span><strong>Tu segundo cerebro académico</strong>: Todo conectado: en segundos podés filtrar “Lo que no entiendo”, ver exámenes próximos o temas pendientes.</li>
+                  </ol>
+              </div>
+          </section>
+      </section>
+
+      <!-- Quiz -->
+      <section id="content-quiz" class="tab-pane" style="display:none;">
+        <section class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+          <h2 class="text-2xl font-bold mb-4">Quiz para Estudiantes</h2>
+          <p class="text-[var(--text-dark)] mb-6">Subí tu Excel y generá un cuestionario interactivo. Ahora soporta <strong>hasta 10 opciones por pregunta (A–J)</strong> y <strong>múltiples correctas</strong>.</p>
+
+          <div class="bg-yellow-50 p-4 rounded-xl mb-6">
+            <h3 class="text-lg font-semibold text-yellow-700 mb-2">Prompt para generar tu cuestionario</h3>
+            <p class="text-sm text-gray-700 mb-2">"Generá un Excel (.xlsx) con una hoja <em>Preguntas</em> con columnas <em>Tema</em>, <em>Pregunta</em>, <em>Opción A</em>…<em>Opción J</em> (usa solo las que necesites) y <em>Opciones correctas</em> (letras separadas por coma). Opcional: una hoja <em>Respuestas</em> con columnas <em>Pregunta</em>, <em>Opción</em>, <em>Es correcta</em> (Sí/No) y <em>Explicación</em>. Llená 10 filas sobre [TU TEMA]".</p>
+          </div>
+
+          <div id="file-loader" class="quiz-container-wrapper file-loader" aria-live="polite">
+            <h2>Cargar Cuestionario desde Excel</h2>
+            <p>Seleccioná tu archivo .xlsx</p>
+            <input id="file-input" type="file" accept=".xlsx,.xls" />
+            <label for="file-input" class="upload-btn">Seleccionar Archivo</label>
+            <p id="status-message"></p>
+          </div>
+
+          <div id="selection-menu-container" class="quiz-container-wrapper selection-menu-container" style="display:none;">
+            <h2>Selección de Cuestionario</h2>
+            <div class="topic-selection">
+              <h3>Temas:</h3>
+              <div id="topic-list" class="topic-list"></div>
+            </div>
+            <div class="quantity-selection mt-3">
+              <label for="num-questions">Cantidad de Preguntas:</label>
+              <input type="number" id="num-questions" min="1" value="10" />
+            </div>
+            <div class="selection-actions">
+              <button id="start-quiz-btn" class="btn confirm-btn"><i class='bx bx-play-circle'></i> Iniciar</button>
+              <button id="back-to-excel-btn-menu" class="btn back-btn"><i class='bx bx-upload'></i> Cargar Otro Excel</button>
+            </div>
+          </div>
+
+          <div id="quiz-container" class="quiz-container-wrapper quiz-container" style="display:none;"></div>
+        </section>
+      </section>
+
+      <!-- Recursos y Bibliografía -->
+      <section id="content-resources" class="tab-pane" style="display:none;">
+        <div class="space-y-8">
+          <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+            <h2 class="text-2xl font-bold mb-4">Recursos &amp; Bibliografía</h2>
+            <p class="text-[var(--text-light)] mb-6">Explorá los recursos oficiales, guías, artículos y herramientas recomendadas para profundizar en los métodos de apuntes, técnicas activas y la aplicación de IA en el estudio.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="p-6 rounded-xl border border-[var(--border-color)] bg-blue-50">
+                <h3 class="text-lg font-semibold mb-2" style="color: var(--primary-blue);">Métodos de Apuntes</h3>
+                <ul class="list-disc list-inside space-y-1 text-[var(--text-dark)] text-sm">
+                  <li><a href="https://lsc.cornell.edu/how-to-study/taking-notes/cornell-note-taking-system/" target="_blank" rel="noopener" class="underline">Cornell University – Cornell Note-Taking System</a></li>
+                  <li><a href="https://subjectguides.york.ac.uk/note-taking/cornell" target="_blank" rel="noopener" class="underline">York University – Cornell Method</a></li>
+                  <li><a href="https://templatelab.com/cornell-notes/" target="_blank" rel="noopener" class="underline">TemplateLab – Plantillas Cornell</a></li>
+                  <li><a href="https://www.honolulu.hawaii.edu/downloads/web/student-services/care-resource-notes-template.pdf" target="_blank" rel="noopener" class="underline">Honolulu CC – Plantilla Cornell PDF</a></li>
+                  <li><a href="https://www2.naz.edu/files/3014/2368/0875/Cornell_Note_Taking_Method_Updated.pdf" target="_blank" rel="noopener" class="underline">Nazareth College – Cornell Method PDF</a></li>
+                </ul>
+              </div>
+              <div class="p-6 rounded-xl border border-[var(--border-color)] bg-green-50">
+                <h3 class="text-lg font-semibold mb-2" style="color: #059669;">Apuntes Activos &amp; Métodos</h3>
+                <ul class="list-disc list-inside space-y-1 text-[var(--text-dark)] text-sm">
+                  <li><a href="https://www.innovaula.net/estudio-activo-vs-pasivo-cual-es-la-diferencia-y-por-que-importa" target="_blank" rel="noopener" class="underline">Innovaula – Estudio activo vs pasivo</a></li>
+                  <li><a href="https://screenapp.io/es/blog/note-taking-methods-complete-guide" target="_blank" rel="noopener" class="underline">ScreenApp – Guía completa de métodos de apuntes</a></li>
+                  <li><a href="https://prouniverso.com/2023/06/20/tomar-apuntes-7-maneras-efectivas/" target="_blank" rel="noopener" class="underline">Prouniverso – 7 maneras efectivas de tomar apuntes</a></li>
+                </ul>
+              </div>
+              <div class="p-6 rounded-xl border border-[var(--border-color)] bg-yellow-50">
+                <h3 class="text-lg font-semibold mb-2" style="color: #b45309;">Inteligencia Artificial</h3>
+                <ul class="list-disc list-inside space-y-1 text-[var(--text-dark)] text-sm">
+                  <li>Guía Exprés: Domina la IA en tus estudios (PDF).</li>
+                  <li>ChatGPT &amp; GPT‑4o – Tutor y generador de preguntas y resúmenes.</li>
+                  <li>NotebookLM – Consultá tus PDFs con citas, audio overview y notebooks curados.</li>
+                </ul>
+              </div>
+              <div class="p-6 rounded-xl border border-[var(--border-color)] bg-purple-50">
+                <h3 class="text-lg font-semibold mb-2" style="color: #7C3AED;">Proyecto y Taller</h3>
+                <ul class="list-disc list-inside space-y-1 text-[var(--text-dark)] text-sm">
+                  <li>Proyecto Manuel Belgrano – Estrategias de estudio y organización con IA.</li>
+                  <li>Método Cornell – Guía rápida (Santiago Scacciaferro).</li>
+                  <li>Guía interactiva – Versión digital de nuestro taller.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recursos -->
+      <section id="content-resources" class="tab-pane" style="display:none;">
+        <section class="space-y-8">
+            <!-- Sección de bibliografía general -->
+            <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                <h2 class="text-2xl font-bold mb-4">Bibliografía de la Guía</h2>
+                <p class="text-[var(--text-dark)] mb-4">Estas son las fuentes y recursos clave en los que se basa esta guía interactiva:</p>
+                <ul class="list-disc list-inside space-y-1 text-[var(--text-dark)]">
+                    <li>guia_ia_estudio.pdf</li>
+                    <li>Método_Cornell_Guía_Rápida.pdf</li>
+                    <li>proyecto manuel belgrano.pdf</li>
+                    <li>Proyecto parte 1.pdf</li>
+                </ul>
+            </div>
+            <!-- Recursos y herramientas adicionales -->
+            <div class="bg-[var(--card-bg)] p-6 md:p-8 rounded-2xl border border-[var(--border-color)]">
+                <h2 class="text-2xl font-bold mb-4 text-center">Recursos y Herramientas Adicionales</h2>
+                <p class="text-center text-[var(--text-dark)] mb-6">Explorá la guía oficial, descargá plantillas gratuitas y descubrí artículos para dominar el método Cornell como un experto.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Tarjeta 1 -->
+                    <a href="https://lsc.cornell.edu/how-to-study/taking-notes/cornell-note-taking-system/" target="_blank" rel="noopener" class="flex flex-col bg-white border border-[var(--border-color)] rounded-2xl p-6 text-left shadow-sm hover:shadow-md transition-transform">
+                        <p class="uppercase text-xs font-bold text-purple-600 mb-2">Fuente Oficial</p>
+                        <h3 class="text-lg font-bold mb-2 text-[var(--text-dark)]">The Cornell Note-Taking System</h3>
+                        <p class="text-sm text-[var(--text-dark)] flex-grow">La guía definitiva del Learning Strategies Center de la universidad que creó el método.</p>
+                        <span class="mt-3 font-bold text-purple-600">Visitar Guía Oficial →</span>
+                    </a>
+                    <!-- Tarjeta 2 -->
+                    <a href="https://www.goodnotes.com/blog/cornell-notes" target="_blank" rel="noopener" class="flex flex-col bg-white border border-[var(--border-color)] rounded-2xl p-6 text-left shadow-sm hover:shadow-md transition-transform">
+                        <p class="uppercase text-xs font-bold text-blue-500 mb-2">Blog Popular</p>
+                        <h3 class="text-lg font-bold mb-2 text-[var(--text-dark)]">La Mejor Forma de Tomar Apuntes</h3>
+                        <p class="text-sm text-[var(--text-dark)] flex-grow">Un análisis moderno y detallado sobre por qué el método Cornell es tan efectivo.</p>
+                        <span class="mt-3 font-bold text-blue-500">Leer Artículo →</span>
+                    </a>
+                    <!-- Tarjeta 3 -->
+                    <a href="https://templatelab.com/cornell-notes/" target="_blank" rel="noopener" class="flex flex-col bg-white border border-[var(--border-color)] rounded-2xl p-6 text-left shadow-sm hover:shadow-md transition-transform">
+                        <p class="uppercase text-xs font-bold text-green-600 mb-2">Herramientas</p>
+                        <h3 class="text-lg font-bold mb-2 text-[var(--text-dark)]">16 Plantillas Cornell Gratuitas</h3>
+                        <p class="text-sm text-[var(--text-dark)] flex-grow">Una colección de plantillas editables en Word y PDF, listas para imprimir o usar digitalmente.</p>
+                        <span class="mt-3 font-bold text-green-600">Descargar Plantillas →</span>
+                    </a>
+                    <!-- Tarjeta 4 -->
+                    <a href="https://www.honolulu.hawaii.edu/downloads/web/student-services/care-resource-notes-template.pdf" target="_blank" rel="noopener" class="flex flex-col bg-white border border-[var(--border-color)] rounded-2xl p-6 text-left shadow-sm hover:shadow-md transition-transform">
+                        <p class="uppercase text-xs font-bold text-red-600 mb-2">PDF Directo</p>
+                        <h3 class="text-lg font-bold mb-2 text-[var(--text-dark)]">Plantilla Cornell Imprimible</h3>
+                        <p class="text-sm text-[var(--text-dark)] flex-grow">Un práctico PDF listo para usar, proporcionado por Honolulu Community College.</p>
+                        <span class="mt-3 font-bold text-red-600">Ver PDF →</span>
+                    </a>
+                    <!-- Tarjeta 5 -->
+                    <a href="https://www2.naz.edu/files/3014/2368/0875/Cornell_Note_Taking_Method_Updated.pdf" target="_blank" rel="noopener" class="flex flex-col bg-white border border-[var(--border-color)] rounded-2xl p-6 text-left shadow-sm hover:shadow-md transition-transform">
+                        <p class="uppercase text-xs font-bold text-orange-600 mb-2">Guía Académica</p>
+                        <h3 class="text-lg font-bold mb-2 text-[var(--text-dark)]">Cornell Method (PDF)</h3>
+                        <p class="text-sm text-[var(--text-dark)] flex-grow">Un resumen académico claro y conciso con ejemplos visuales de cómo usar el sistema.</p>
+                        <span class="mt-3 font-bold text-orange-600">Ver Resumen →</span>
+                    </a>
+                    <!-- Tarjeta 6 -->
+                    <a href="https://subjectguides.york.ac.uk/note-taking/cornell" target="_blank" rel="noopener" class="flex flex-col bg-white border border-[var(--border-color)] rounded-2xl p-6 text-left shadow-sm hover:shadow-md transition-transform">
+                        <p class="uppercase text-xs font-bold text-blue-700 mb-2">Biblioteca Universitaria</p>
+                        <h3 class="text-lg font-bold mb-2 text-[var(--text-dark)]">Guía de York University</h3>
+                        <p class="text-sm text-[var(--text-dark)] flex-grow">Explicación y consejos prácticos integrados en una guía de estudio más amplia.</p>
+                        <span class="mt-3 font-bold text-blue-700">Explorar Guía →</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+      </section>
+        
+    </main>
+  </div>
+  <!-- Message Box -->
+  <div id="message-box-overlay" class="message-box-overlay" style="display: none;">
+      <div class="message-box">
+          <p id="message-box-text" class="text-[var(--text-dark)] mb-4"></p>
+          <button id="message-box-ok-btn" class="btn confirm-btn">OK</button>
+      </div>
+  </div>
+
+  <script>
+    // ---- Communication for iframe height (if used within an iframe) ----
+    function sendIframeHeight() {
+      const height = document.documentElement.scrollHeight;
+      try { window.parent.postMessage(height, '*'); } catch (e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(sendIframeHeight, 100);
+
+      /* --------------------- General State --------------------- */
+      const fileInput = document.getElementById('file-input');
+      const statusMsg = document.getElementById('status-message');
+      const fileLoaderEl = document.getElementById('file-loader');
+      const selectionMenuContainer = document.getElementById('selection-menu-container');
+      const topicListEl = document.getElementById('topic-list');
+      const numQuestionsInput = document.getElementById('num-questions');
+      const startQuizBtn = document.getElementById('start-quiz-btn');
+      const backToExcelBtnMenu = document.getElementById('back-to-excel-btn-menu');
+      const quizContainer = document.getElementById('quiz-container');
+
+      // Message Box Elements
+      const messageBoxOverlay = document.getElementById('message-box-overlay');
+      const messageBoxText = document.getElementById('message-box-text');
+      const messageBoxOkBtn = document.getElementById('message-box-ok-btn');
+
+      let allQuestions = [];
+      let currentQuizQuestions = [];
+      let current = 0, selected = [], answered = [], userAns = [];
+      let correctCount = 0, incorrectCount = 0, skippedCount = 0;
+      let skippedQuestionsQueue = [];
+      let quizStartTime; let timerIntervalId;
+
+      // Function to show a custom message box instead of alert()
+      function showMessage(message) {
+          messageBoxText.textContent = message;
+          messageBoxOverlay.style.display = 'flex';
+          messageBoxOkBtn.onclick = () => {
+              messageBoxOverlay.style.display = 'none';
+              setTimeout(sendIframeHeight, 100);
+          };
+      }
+
+      // ---- Chart.js defaults ----
+      const styles = getComputedStyle(document.documentElement);
+      const textColor = styles.getPropertyValue('--text-dark').trim();
+      const textColorLight = styles.getPropertyValue('--text-light').trim();
+      const borderColor = styles.getPropertyValue('--border-color').trim();
+      const primaryGreen = styles.getPropertyValue('--primary-green').trim();
+      Chart.defaults.color = textColorLight;
+      Chart.defaults.font.family = "'Inter', sans-serif";
+
+      // ---- Method Data ----
+      const APP_DATA = {
+        methods: {
+          cornell: {
+            name: 'Método Cornell', icon: '🗒️',
+            tagline: 'Estructura para el dominio y la revisión activa.',
+            description: 'Divide la página en secciones para notas, pistas/preguntas y un resumen. Ideal para procesar y revisar información.',
+            goals: ['study','document'], chartData: [5,1,3,2,5],
+            platforms: {
+              pc: 'Notion o OneNote con plantillas.',
+              paper: 'Formato original. Dividí la hoja.',
+              tablet: 'GoodNotes / Notability con plantilla Cornell.'
+            }
+          },
+          sketchnoting: {
+            name: 'Sketchnoting', icon: '🎨',
+            tagline: 'Pensamiento visual y conexiones creativas.',
+            description: 'Combina texto y dibujos para un mapa visual. Excelente para conceptos complejos e ideación.',
+            goals: ['design','study'], chartData: [2,5,2,3,3],
+            platforms: { pc: 'Miro / Excalidraw', paper: 'Bloc y lápices', tablet: 'Procreate / Notability' }
+          },
+          mindmap: {
+            name: 'Mapas Mentales', icon: '🧠',
+            tagline: 'Exploración radial de ideas.',
+            description: 'Organiza alrededor de un concepto central. Ideal para brainstorming y planificación.',
+            goals: ['design','research'], chartData: [3,5,3,4,3],
+            platforms: { pc: 'XMind / Miro', paper: 'Hoja grande', tablet: 'MindNode / Concepts' }
+          },
+          zettelkasten: {
+            name: 'Zettelkasten', icon: '🗄️',
+            tagline: 'Tu segundo cerebro interconectado.',
+            description: 'Notas atómicas enlazadas que crecen con el tiempo. Ideal para investigación.',
+            goals: ['research'], chartData: [4,4,1,5,5],
+            platforms: { pc: 'Obsidian / Zettlr', paper: 'Fichas indexadas', tablet: 'Obsidian' }
+          },
+          linear: {
+            name: 'Notas Lineales', icon: '�',
+            tagline: 'Claridad y precisión formal.',
+            description: 'Esquemas jerárquicos. Útil para actas y especificaciones.',
+            goals: ['document'], chartData: [4,1,4,3,2],
+            platforms: { pc: 'Word / Docs', paper: 'Clásico', tablet: 'Teclado digital' }
+          }
+        },
+        goals: {
+          study: { methods: ['cornell','sketchnoting'] },
+          design: { methods: ['mindmap','sketchnoting'] },
+          document: { methods: ['linear','cornell'] },
+          research: { methods: ['zettelkasten','mindmap'] }
+        },
+        chartLabels: ['Estructura','Creatividad','Velocidad','Colaboración','Revisión']
+      };
+
+      // ---- Main Tabs ----
+      const mainTabs = document.querySelectorAll('.sidebar nav a, #mobile-tabs a');
+      const panes = document.querySelectorAll('.tab-pane');
+
+      function activateTab(tabId) {
+        document.querySelectorAll('.sidebar nav a, #mobile-tabs a').forEach(a => a.classList.remove('active'));
+        document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(a => a.classList.add('active'));
+        panes.forEach(p => p.style.display = 'none');
+        const target = document.getElementById(`content-${tabId}`);
+        if (target) { target.style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      }
+      mainTabs.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          activateTab(link.dataset.tab);
+          if (link.dataset.tab === 'methods') {
+            renderMethodCards();
+            activateMethodTab('cornell');
+          }
+        });
+      });
+
+      // ---- Methods: render + radar ----
+      const methodTabs = document.getElementById('method-tabs');
+      const methodContent = document.getElementById('method-content');
+
+      function renderMethodCards() {
+        let html = '';
+        for (const key in APP_DATA.methods) {
+          const m = APP_DATA.methods[key];
+          const displayStyle = key === 'cornell' ? 'block' : 'none';
+          html += `
+          <div id="method-card-${key}" class="method-card p-6 rounded-2xl border border-[var(--border-color)] transition-opacity duration-300" style="display:${displayStyle};">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h3 class="text-2xl font-bold flex items-center gap-3 mb-2"><span class="text-3xl">${m.icon}</span>${m.name}</h3>
+                <p class="font-semibold text-[var(--primary-green)] mb-4">${m.tagline}</p>
+                <p class="text-[var(--text-dark)] mb-4">${m.description}</p>
+                <h4 class="text-lg font-bold mt-6 mb-2">Ideal para…</h4>
+                <ul class="list-disc list-inside text-[var(--text-dark)] space-y-1">
+                  <li><strong>PC:</strong> ${m.platforms.pc}</li>
+                  <li><strong>Hoja:</strong> ${m.platforms.paper}</li>
+                  <li><strong>Tablet:</strong> ${m.platforms.tablet}</li>
+                </ul>
+              </div>
+              <div class="chart-container"><canvas id="chart-${key}"></canvas></div>
+            </div>
+          </div>`;
+        }
+        methodContent.innerHTML = html;
+        Object.keys(APP_DATA.methods).forEach(renderRadar);
+      }
+      function activateMethodTab(methodId) {
+        document.querySelectorAll('.method-tab').forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`[data-method="${methodId}"]`);
+        if (link) link.classList.add('active');
+        document.querySelectorAll('.method-card').forEach(card => card.style.display = 'none');
+        const targetCard = document.getElementById(`method-card-${methodId}`);
+        if (targetCard) targetCard.style.display = 'block';
+      }
+      function renderRadar(key) {
+        const m = APP_DATA.methods[key];
+        const ctx = document.getElementById(`chart-${key}`).getContext('2d');
+        new Chart(ctx, {
+          type: 'radar',
+          data: { labels: APP_DATA.chartLabels, datasets: [{ label: m.name, data: m.chartData, backgroundColor: 'rgba(16,185,129,0.1)', borderColor: primaryGreen, pointBackgroundColor: primaryGreen }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { color: textColor, padding: 20 } } }, scales: { r: { suggestedMin: 0, suggestedMax: 5, grid: { color: borderColor }, pointLabels: { font: { size: 12 }, color: textColor }, ticks: { stepSize: 1, backdropColor: 'transparent', color: textColorLight } } } }
+        });
+      }
+      if (methodTabs) {
+        methodTabs.addEventListener('click', e => {
+          e.preventDefault();
+          const link = e.target.closest('a');
+          if (link) { activateMethodTab(link.dataset.method); setTimeout(sendIframeHeight, 100); }
+        });
+      }
+
+      // ---- Interactive Selector ----
+      const goalSelector = document.getElementById('goal-selector');
+      const recContainer = document.getElementById('recommendations');
+      function createRecCard(key) {
+        const m = APP_DATA.methods[key];
+        return `
+        <div id="card-${key}" class="bg-gray-50 p-6 rounded-xl border border-[var(--border-color)] opacity-0 translate-y-4 transform transition-all duration-300">
+          <div class="flex items-center mb-3"><span class="text-3xl mr-3">${m.icon}</span><h3 class="text-xl font-bold">${m.name}</h3></div>
+          <p class="font-semibold text-[var(--primary-green)] mb-3">${m.tagline}</p>
+          <p class="text-[var(--text-dark)] text-sm">${m.description}</p>
+        </div>`;
+      }
+      function showRec(goal) {
+        const methods = APP_DATA.goals[goal].methods;
+        recContainer.innerHTML = methods.map(createRecCard).join('');
+        setTimeout(() => { methods.forEach((k,i) => { const c = document.getElementById(`card-${k}`); setTimeout(() => { c.classList.remove('opacity-0','translate-y-4'); }, i*100); }); }, 10);
+      }
+      goalSelector.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        goalSelector.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        showRec(btn.dataset.goal);
+      });
+
+      // ---- Quiz: Excel Reading ----
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        statusMsg.textContent = 'Procesando archivo…';
+        statusMsg.style.color = 'var(--quiz-accent-color)';
+        const reader = new FileReader();
+        reader.onload = evt => {
+          try {
+            const wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+            const qSheet = wb.Sheets['Preguntas'];
+            const rSheet = wb.Sheets['Respuestas'];
+            if (!qSheet) throw new Error("El libro debe tener una hoja 'Preguntas'. (La hoja 'Respuestas' es opcional.)");
+            const qData = XLSX.utils.sheet_to_json(qSheet);
+            const rData = rSheet ? XLSX.utils.sheet_to_json(rSheet) : [];
+            allQuestions = buildQuestions(qData, rData);
+            if (!allQuestions.length) throw new Error('No se encontraron preguntas válidas.');
+            fileLoaderEl.style.display = 'none';
+            showSelectionMenu();
+          } catch (err) {
+            statusMsg.textContent = `Error: ${err.message}`;
+            statusMsg.style.color = 'var(--quiz-incorrect-color)';
+            showMessage(statusMsg.textContent);
+          }
+          setTimeout(sendIframeHeight, 100);
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      function buildQuestions(qData, rData) {
+        // Map explanations by Question and letter
+        const expMap = {};
+        rData.forEach(row => {
+          const qTxt = String(row['Pregunta'] || '').trim();
+          if (!qTxt) return;
+          const optLetter = String(row['Opción'] || '').trim().toUpperCase().charAt(0);
+          if (!expMap[qTxt]) expMap[qTxt] = {};
+          expMap[qTxt][optLetter] = {
+            isCorrect: String(row['Es correcta'] || '').trim().toLowerCase().startsWith('s'),
+            text: row['Explicación'] || ''
+          };
+        });
+
+        return qData.map(row => {
+          const qTxt = String(row['Pregunta'] || '').trim();
+          if (!qTxt) return null;
+          // Dynamically detect Option A..J
+          const options = {};
+          Object.keys(row).forEach(k => {
+            const m = k.match(/^Opción\s+([A-Z])$/i);
+            if (m) {
+              const letter = m[1].toUpperCase();
+              const val = row[k];
+              if (val !== undefined && val !== null && String(val).trim() !== '') options[letter] = String(val);
+            }
+          });
+          const corr = String(row['Opciones correctas'] || '')
+                        .split(/[ ,;\/]+/)
+                        .map(s => s.trim().toUpperCase())
+                        .filter(Boolean)
+                        .filter(l => options[l]); // only letters that exist as options
+          if (Object.keys(options).length === 0 || corr.length === 0) return null;
+          const exp = expMap[qTxt] || {};
+          const explanations = {};
+          Object.keys(options).sort().forEach(letter => {
+            const data = exp[letter];
+            explanations[letter] = {
+              isCorrect: corr.includes(letter),
+              text: data ? data.text : ''
+            }
+          });
+          return {
+            topic: row['Tópico'] || row['Tema'] || 'General',
+            question: qTxt,
+            options,
+            correctAnswers: corr.sort(),
+            explanations
+          };
+        }).filter(q => q && Object.keys(q.options).length > 0);
+      }
+
+      function showSelectionMenu() {
+        clearInterval(timerIntervalId);
+        quizContainer.style.display = 'none';
+        selectionMenuContainer.style.display = 'block';
+        topicListEl.innerHTML = '';
+
+        const uniqueTopics = [...new Set(allQuestions.map(q => q.topic))].sort();
+        uniqueTopics.forEach(topic => {
+          const id = `topic-${topic.replace(/\s+/g,'-')}`;
+          const div = document.createElement('label');
+          div.className = 'topic-item';
+          div.innerHTML = `
+            <input type="checkbox" id="${id}" value="${topic}" checked />
+            <span>${topic}</span>
+          `;
+          topicListEl.appendChild(div);
+        });
+
+        numQuestionsInput.value = allQuestions.length;
+        numQuestionsInput.max = allQuestions.length;
+
+        startQuizBtn.onclick = startQuizFromSelection;
+        backToExcelBtnMenu.onclick = resetToExcelUpload;
+        setTimeout(sendIframeHeight, 100);
+      }
+
+      function startQuizFromSelection() {
+        const selectedTopics = Array
+          .from(document.querySelectorAll('#topic-list input[type="checkbox"]:checked'))
+          .map(cb => cb.value);
+
+        const numQuestions = Math.max(1, Math.min(
+          parseInt(numQuestionsInput.value || '1', 10),
+          allQuestions.length
+        ));
+
+        if (selectedTopics.length === 0) {
+          showMessage('Por favor, seleccioná al menos un tema.');
+          return;
+        }
+
+        let filtered = allQuestions.filter(q => selectedTopics.includes(q.topic));
+
+        if (!filtered.length) {
+          showMessage('No hay preguntas para los temas elegidos.');
+          return;
+        }
+
+        // Shuffle questions
+        for (let i = filtered.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+        }
+
+        currentQuizQuestions = filtered.slice(0, numQuestions);
+
+        selectionMenuContainer.style.display = 'none';
+        quizContainer.style.display = 'block';
+        startQuiz();
+        setTimeout(sendIframeHeight, 100);
+      }
+
+      function startQuiz() {
+        current = 0;
+        correctCount = 0;
+        incorrectCount = 0;
+        skippedCount = 0;
+        answered = new Array(currentQuizQuestions.length).fill(false);
+        userAns = new Array(currentQuizQuestions.length).fill(null);
+        skippedQuestionsQueue = [];
+
+        quizStartTime = Date.now();
+        clearInterval(timerIntervalId);
+        timerIntervalId = setInterval(updateTimer, 1000);
+
+        showQuestion();
+      }
+
+      function updateTimer() {
+        const elapsed = Date.now() - quizStartTime;
+        const mm = String(Math.floor(elapsed / 60000)).padStart(2, '0');
+        const ss = String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0');
+        const el = document.getElementById('timer-display');
+        if (el) el.textContent = `Tiempo: ${mm}:${ss}`;
+      }
+
+      function showQuestion() {
+        // If we reach the end, either show skipped questions or results
+        if (current >= currentQuizQuestions.length) {
+          if (skippedQuestionsQueue.length) {
+            const startIdx = currentQuizQuestions.length;
+            currentQuizQuestions = currentQuizQuestions.concat(skippedQuestionsQueue);
+            answered = answered.concat(new Array(skippedQuestionsQueue.length).fill(false));
+            userAns = userAns.concat(new Array(skippedQuestionsQueue.length).fill(null));
+            skippedQuestionsQueue = [];
+            current = startIdx; // start with the new questions
+          } else {
+            showResults();
+            return;
+          }
+        }
+
+        const q = currentQuizQuestions[current];
+        quizContainer.classList.add('fade-in-effect');
+        setTimeout(() => quizContainer.classList.remove('fade-in-effect'), 400);
+
+        // Build the question UI
+        quizContainer.innerHTML = `
+          <div class="quiz-header" id="quiz-header-wrapper">
+            <div id="topic">${q.topic}</div>
+            <div id="timer-display" class="timer-display" aria-live="polite">Tiempo: 00:00</div>
+            <div class="live-score-container" aria-label="Marcador">
+              <span class="score-box correct"><i class='bx bxs-check-circle'></i> ${correctCount}</span>
+              <span class="score-box incorrect"><i class='bx bxs-x-circle'></i> ${incorrectCount}</span>
+            </div>
+            <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+            <p class="progress-text" id="progress-text"></p>
+          </div>
+
+          <div class="question-area"><h3>${current + 1}. ${q.question}</h3></div>
+          <div class="options-area" id="options-area"></div>
+          <div class="feedback-area" id="feedback-area"></div>
+
+          <div class="quiz-footer">
+            <button id="back-to-menu-btn" class="btn back-btn" aria-label="Volver al menú de selección">
+              <i class='bx bx-arrow-back'></i> Volver al Menú
+            </button>
+            <button id="skip-btn" class="btn skip-btn" aria-label="Saltar y volver luego">
+              <i class='bx bx-fast-forward'></i> Saltada
+            </button>
+            <div>
+              <button id="confirm-btn" class="btn confirm-btn" disabled aria-disabled="true">
+                <i class='bx bx-check-double'></i> Confirmar
+              </button>
+              <button id="next-btn" class="btn next-btn" style="display:none;">
+                <i class='bx bx-log-in-circle'></i> Siguiente
+              </button>
+            </div>
+          </div>
+        `;
+
+        selected = [];
+        const optArea = document.getElementById('options-area');
+
+        // Sort options by letter
+        Object.keys(q.options).sort().forEach(letter => {
+          const text = q.options[letter];
+          if (!text) return;
+          const div = document.createElement('div');
+          div.className = 'option';
+          div.dataset.key = letter;
+          div.setAttribute('role', 'button');
+          div.setAttribute('tabindex', '0');
+          div.innerHTML = `
+            <div class="option-content">
+              <strong class="option-letter">${letter}</strong>
+              <span class="option-text">${text}</span>
+            </div>
+            <span class="selection-indicator"><i class='bx bxs-check-square'></i></span>
+          `;
+          div.addEventListener('click', () => toggleSelect(div, letter));
+          div.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggleSelect(div, letter); }
+          });
+          optArea.appendChild(div);
+        });
+
+        document.getElementById('confirm-btn').addEventListener('click', confirmAnswer);
+        document.getElementById('next-btn').addEventListener('click', () => { current++; showQuestion(); });
+        document.getElementById('skip-btn').addEventListener('click', skipQuestion);
+        document.getElementById('back-to-menu-btn').addEventListener('click', showSelectionMenu);
+
+        updateProgress();
+        updateTimer();
+        setTimeout(sendIframeHeight, 100);
+      }
+
+      function toggleSelect(div, key) {
+        const i = selected.indexOf(key);
+        if (i > -1) {
+          selected.splice(i, 1);
+          div.classList.remove('selected');
+        } else {
+          selected.push(key);
+          div.classList.add('selected');
+        }
+        const btn = document.getElementById('confirm-btn');
+        btn.disabled = selected.length === 0;
+        btn.setAttribute('aria-disabled', String(selected.length === 0));
+      }
+
+      function skipQuestion() {
+        skippedQuestionsQueue.push(currentQuizQuestions[current]);
+        skippedCount++;
+        answered[current] = true;
+        userAns[current] = [];
+        goToNextOrFinish();
+        setTimeout(sendIframeHeight, 100);
+      }
+
+      async function confirmAnswer() {
+        const q = currentQuizQuestions[current];
+        userAns[current] = [...selected].sort();
+        answered[current] = true;
+
+        const target = q.correctAnswers.slice().sort().join(',');
+        const given = userAns[current].join(',');
+        const isCorrect = (target === given);
+
+        if (isCorrect) { correctCount++; } else { incorrectCount++; }
+
+        document.querySelectorAll('.option').forEach(div => {
+            const letter = div.dataset.key;
+            const chosen = selected.includes(letter);
+            const isRight = q.correctAnswers.includes(letter);
+            div.classList.add('disabled');
+            div.classList.remove('selected');
+            if (isRight) div.classList.add('correct');
+            else if (chosen) div.classList.add('incorrect');
+
+            if (chosen) {
+              div.classList.add('chosen-by-user');
+              const indicator = div.querySelector('.selection-indicator');
+              if (isRight) { indicator.classList.add('correct-choice'); }
+              else { indicator.classList.add('incorrect-choice'); }
+            }
+        });
+
+        const fb = document.getElementById('feedback-area');
+        const expl = Object.keys(q.explanations)
+            .filter(letter => q.explanations[letter]?.text)
+            .map(letter => {
+              const e = q.explanations[letter];
+              return `
+                  <div class="explanation ${e.isCorrect ? 'correct' : 'incorrect'}">
+                      <strong>Opción ${letter}:</strong> ${e.text}
+                  </div>
+              `;
+            }).join('');
+        if (expl) {
+            fb.innerHTML = `<h4>Explicaciones:</h4>${expl}`;
+        }
+
+        const aiExplainBtn = document.createElement('button');
+        aiExplainBtn.id = 'ai-explain-btn';
+        aiExplainBtn.className = 'btn ai-explain-btn';
+        aiExplainBtn.innerHTML = `<i class='bx bx-brain'></i> Generar Explicación IA`;
+        fb.appendChild(aiExplainBtn);
+
+        const aiExplanationDiv = document.createElement('div');
+        aiExplanationDiv.className = 'ai-explanation';
+        aiExplanationDiv.style.display = 'none';
+        fb.appendChild(aiExplanationDiv);
+
+        aiExplainBtn.addEventListener('click', async () => {
+            aiExplainBtn.disabled = true;
+            aiExplainBtn.innerHTML = `<span class="loading-spinner"></span> Cargando explicación...`;
+            aiExplanationDiv.style.display = 'block';
+            setTimeout(sendIframeHeight, 100);
+
+            let prompt = `Explica el concepto de "${q.topic}" de manera concisa y fácil de entender, relevante para la pregunta: "${q.question}".`;
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify(payload)
+                 });
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                  let text = result.candidates[0].content.parts[0].text;
+                  text = text.replace(/\n/g, '<br>');
+                  aiExplanationDiv.innerHTML = `<h4>Explicación del Tema por IA</h4><p>${text}</p>`;
+                } else {
+                  aiExplanationDiv.innerHTML = `<h4>Explicación del Tema por IA</h4><p>No se pudo obtener la explicación de la IA.</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching AI explanation:', error);
+                aiExplanationDiv.innerHTML = `<h4>Explicación del Tema por IA</h4><p>Error al cargar la explicación de la IA: ${error.message}</p>`;
+            } finally {
+                aiExplainBtn.style.display = 'none';
+                setTimeout(sendIframeHeight, 100);
+            }
+        });
+
+        document.getElementById('confirm-btn').style.display = 'none';
+        document.getElementById('skip-btn').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'inline-flex';
+        updateProgress();
+        goToNextOrFinish(true);
+        setTimeout(sendIframeHeight, 100);
+      }
+
+      function goToNextOrFinish(answeredNow = false) {
+          if (current < currentQuizQuestions.length - 1) {
+              if (!answeredNow) {
+                  current++;
+                  showQuestion();
+              }
+          } else {
+              if (skippedQuestionsQueue.length > 0) {
+                  current++;
+                  showQuestion();
+              } else {
+                  setTimeout(showResults, 1200);
+              }
+          }
+      }
+
+      function updateProgress() {
+        const done = answered.filter(Boolean).length;
+        const total = currentQuizQuestions.length;
+        const pct = (done / Math.max(1, total)) * 100;
+        const bar = document.getElementById('progress-bar');
+        if (bar) bar.style.width = `${pct}%`;
+        const txt = document.getElementById('progress-text');
+        if (txt) txt.textContent = `Pregunta ${Math.min(current + 1, total)} de ${total}`;
+        const ok = document.querySelector('.score-box.correct');
+        const bad = document.querySelector('.score-box.incorrect');
+        if (ok) ok.innerHTML = `<i class='bx bxs-check-circle'></i> ${correctCount} correctas`;
+        if (bad) bad.innerHTML = `<i class='bx bxs-x-circle'></i> ${incorrectCount} incorrectas`;
+      }
+
+      function showResults() {
+        clearInterval(timerIntervalId);
+        const groups = currentQuizQuestions.reduce((acc, q, i) => {
+            (acc[q.topic] ||= []).push({ q, i });
+            return acc;
+        }, {});
+        let html = `
+            <div class="quiz-header"><h2>Resultados Finales</h2></div>
+            <div class="final-score-summary">
+                <span class="score-box correct"><i class='bx bxs-check-circle'></i> Correctas: ${correctCount}</span>
+                <span class="score-box incorrect"><i class='bx bxs-x-circle'></i> Incorrectas: ${incorrectCount}</span>
+                <span class="score-box skipped"><i class='bx bxs-fast-forward-circle'></i> Saltadas: ${skippedCount}</span>
+            </div>
+            <div class="results-container">
+        `;
+        Object.keys(groups).sort().forEach(topic => {
+            html += `<div class="topic-group"><h3 class="topic-title">${topic}</h3>`;
+            groups[topic].forEach(({ q, i }) => {
+                const u = userAns[i];
+                const c = q.correctAnswers;
+                const isSkipped = Array.isArray(u) && u.length === 0;
+                const isCorrect = Array.isArray(u) && u.slice().sort().join(',') === c.slice().sort().join(',');
+                const ansText = isSkipped ? 'Saltada' : (Array.isArray(u) ? u.join(', ') : 'No respondida');
+                const cls = isSkipped ? 'skipped' : (isCorrect ? 'correct' : 'incorrect');
+                html += `
+                    <div class="result-item">
+                        <h4 class="text-[var(--text-dark)]">${i + 1}. ${q.question}</h4>
+                        <p><strong>Tu respuesta:</strong> <span class="${cls}-text">${ansText}</span></p>
+                        <p><strong>Respuesta correcta:</strong> <span class="correct-text">${c.join(', ')}</span></p>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        });
+        html += `
+            </div>
+            <div class="quiz-footer">
+                <button id="back-to-menu-btn-results" class="btn back-btn"><i class='bx bx-arrow-back'></i> Volver al Menú</button>
+                <button id="back-to-excel-btn-results" class="btn back-btn"><i class='bx bx-upload'></i> Cargar Otro Excel</button>
+            </div>
+        `;
+        quizContainer.innerHTML = html;
+        quizContainer.classList.add('fade-in-effect');
+        document.getElementById('back-to-menu-btn-results').addEventListener('click', showSelectionMenu);
+        document.getElementById('back-to-excel-btn-results').addEventListener('click', resetToExcelUpload);
+        setTimeout(sendIframeHeight, 100);
+      }
+
+      function resetToExcelUpload() {
+          clearInterval(timerIntervalId);
+          fileLoaderEl.style.display = 'block';
+          selectionMenuContainer.style.display = 'none';
+          quizContainer.style.display = 'none';
+          statusMsg.textContent = '';
+          fileInput.value = '';
+          allQuestions = [];
+          currentQuizQuestions = [];
+          current = 0;
+          correctCount = 0;
+          incorrectCount = 0;
+          skippedCount = 0;
+          answered = [];
+          userAns = [];
+          skippedQuestionsQueue = [];
+          setTimeout(sendIframeHeight, 100);
+      }
+
+      // Initialize dynamic content
+      renderMethodCards();
+      activateTab('intro');
+      // Initial selection in the recommender
+      const firstGoalBtn = document.querySelector('#goal-selector [data-goal="study"]');
+      if (firstGoalBtn) firstGoalBtn.click();
+    });
+
+    // Adjust height if used in an iframe
+    window.addEventListener('resize', () => { setTimeout(sendIframeHeight, 100); });
+    const observer = new MutationObserver(() => { setTimeout(sendIframeHeight, 50); });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+  </script>
+</body>
+</html>

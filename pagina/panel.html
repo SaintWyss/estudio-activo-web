@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chosen Palette: Subtle & Sophisticated -->
+    <!-- Application Structure Plan: He diseñado la aplicación como un panel de control narrativo que guía al usuario a través del contenido del taller en un flujo lógico. Comienza con el problema (estudio pasivo), presenta la solución fundamental (Cornell), muestra cómo digitalizarla (Notion), introduce técnicas avanzadas (estudio activo) y finalmente, demuestra cómo potenciar todo con IA. Esta estructura temática, con una barra de navegación lateral fija en escritorio, permite tanto una exploración lineal como un acceso directo a las secciones, optimizando la usabilidad y la comprensión del material del informe. -->
+    <!-- Visualization & Content Choices: 1. Problema (Retención): Info -> Comparar retención -> Viz -> Gráfico de Barras -> Interaction -> Tooltips -> Justification -> Comparación directa y clara -> Library -> Chart.js (Canvas). 2. Flujo de Trabajo: Info -> Proceso de digitalización -> Viz -> Diagrama de Flujo (HTML/CSS) -> Interaction -> Hover states -> Justification -> Visualiza el proceso secuencial sin necesidad de gráficos complejos. 3. Comparativa IA: Info -> Fortalezas de herramientas IA -> Viz -> Gráfico Radar -> Interaction -> Tooltips -> Justification -> Ideal para comparar múltiples entidades (ChatGPT vs NotebookLM) en varias métricas. -> Library -> Chart.js (Canvas). 4. Plan Taller: Info -> Distribución del tiempo -> Viz -> Gráfico de Anillo -> Interaction -> Tooltips -> Justification -> Muestra de forma efectiva la proporción de cada parte sobre un todo. -> Library -> Chart.js (Canvas). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <title>Panel Interactivo: Estrategias de Estudio con IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            border-left: 3px solid transparent;
+        }
+        .nav-link.active {
+            border-left-color: #3b82f6;
+            background-color: #eff6ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .nav-link:hover {
+            background-color: #f3f4f6;
+            border-left-color: #d1d5db;
+        }
+        .ai-task-btn.active {
+            background-color: #1e40af;
+            color: white;
+            box-shadow: 0 4px 14px 0 rgb(0 0 0 / 10%);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen lg:flex">
+        <nav class="sticky top-0 z-10 lg:w-64 lg:flex-shrink-0 bg-white lg:h-screen lg:overflow-y-auto border-b lg:border-b-0 lg:border-r">
+            <div class="p-4">
+                <h1 class="text-xl font-bold text-blue-800">Menú del Taller</h1>
+                <p class="text-xs text-slate-500">Navega por el contenido</p>
+            </div>
+            <ul class="flex overflow-x-auto lg:flex-col lg:overflow-visible p-2 lg:p-4 space-x-2 lg:space-x-0 lg:space-y-1">
+                <li><a href="#introduccion" class="nav-link block p-3 text-sm rounded-md">Introducción</a></li>
+                <li><a href="#metodologia" class="nav-link block p-3 text-sm rounded-md">Metodología Activa</a></li>
+                <li><a href="#digitalizacion" class="nav-link block p-3 text-sm rounded-md">Digitalización</a></li>
+                <li><a href="#ia" class="nav-link block p-3 text-sm rounded-md">Potencia con IA</a></li>
+                <li><a href="#plan" class="nav-link block p-3 text-sm rounded-md">Plan del Taller</a></li>
+            </ul>
+        </nav>
+
+        <main class="flex-1 p-4 sm:p-6 md:p-10">
+            <div id="introduccion" class="scroll-mt-20">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h2 class="text-base font-semibold text-blue-600 tracking-wider">Proyecto Beca Manuel Belgrano</h2>
+                        <p class="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">Estrategias de Estudio y Organización con IA</p>
+                        <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-500">Un taller práctico para transformar tu método de aprendizaje, diseñado por y para estudiantes universitarios, con el objetivo de optimizar el tiempo y mejorar la retención de conocimientos.</p>
+                    </div>
+
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <h3 class="text-2xl font-bold mb-4 text-center">El Problema: Estudio Pasivo vs. Activo</h3>
+                        <p class="text-slate-600 mb-8 text-center max-w-2xl mx-auto">La mayoría de los estudiantes toman apuntes de forma pasiva (transcribiendo), lo que resulta en una baja retención de la información. Este taller se enfoca en enseñar métodos activos que involucran al cerebro en el proceso de aprendizaje, aumentando drásticamente la comprensión y el recuerdo a largo plazo.</p>
+                        <div class="chart-container">
+                            <canvas id="retentionChart"></canvas>
+                        </div>
+                        <p class="text-center text-sm text-slate-500 mt-4">Los métodos activos como Cornell, que fuerzan el resumen y la auto-evaluación, pueden incrementar significativamente la retención del material estudiado en comparación con la simple transcripción.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="metodologia" class="scroll-mt-20 pt-16">
+                 <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-extrabold tracking-tight">La Solución: Metodología de Estudio Activo</h2>
+                        <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-500">Implementamos un sistema de 3 pasos: capturar la información de forma activa, organizarla digitalmente para un acceso rápido y aplicar técnicas de estudio que solidifiquen el conocimiento.</p>
+                    </div>
+
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <h3 class="text-2xl font-bold mb-2">Paso 1: El Método Cornell</h3>
+                        <p class="text-slate-600 mb-6">La base del sistema es el método Cornell. Este sistema divide la página en tres secciones clave para fomentar el procesamiento activo de la información durante y después de la clase. Es más que tomar notas; es crear una herramienta de estudio.</p>
+                        <div class="border-2 border-dashed border-blue-200 bg-blue-50/30 p-4 rounded-xl flex flex-col md:flex-row gap-4">
+                            <div class="md:w-1/3 p-4 bg-white rounded-lg shadow-sm">
+                                <h4 class="font-bold text-blue-700">1. Columna de Pistas (Izquierda)</h4>
+                                <p class="text-sm mt-1">Después de clase, formula preguntas o palabras clave basadas en tus notas. Esto es crucial para el repaso y la autoevaluación.</p>
+                            </div>
+                            <div class="flex-1 space-y-4">
+                               <div class="p-4 bg-white rounded-lg shadow-sm h-full">
+                                    <h4 class="font-bold text-blue-700">2. Área de Notas (Derecha)</h4>
+                                    <p class="text-sm mt-1">Durante la clase, registra aquí las ideas principales, conceptos y ejemplos. Usa abreviaturas y frases cortas.</p>
+                                </div>
+                                <div class="p-4 bg-white rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-blue-700">3. Área de Resumen (Inferior)</h4>
+                                    <p class="text-sm mt-1">Sintetiza en una o dos oraciones la idea principal de la página. Este ejercicio consolida tu comprensión del tema.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
+            <div id="digitalizacion" class="scroll-mt-20 pt-16">
+                 <div class="max-w-4xl mx-auto">
+                     <div class="text-center mb-12">
+                        <h2 class="text-3xl font-extrabold tracking-tight">Digitalización: Tu Segundo Cerebro</h2>
+                        <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-500">Los apuntes en papel son excelentes para la captura inicial. Luego, los digitalizamos en una herramienta como Notion para crear una base de conocimiento personal, organizada, interconectada y accesible desde cualquier lugar.</p>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <h3 class="text-2xl font-bold mb-6">Paso 2: Flujo de Trabajo Papel a Notion</h3>
+                        <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4">
+                            <div class="text-center flex-1 p-4 rounded-lg">
+                                <div class="text-5xl mb-2">✍️</div>
+                                <h4 class="font-bold">1. Captura</h4>
+                                <p class="text-sm text-slate-600">Toma apuntes en clase usando el método Cornell en papel.</p>
+                            </div>
+                            <div class="text-4xl text-blue-300 font-light">➔</div>
+                            <div class="text-center flex-1 p-4 rounded-lg">
+                                <div class="text-5xl mb-2">📄</div>
+                                <h4 class="font-bold">2. Digitaliza</h4>
+                                <p class="text-sm text-slate-600">Escanea o transcribe tus notas a una página de Notion.</p>
+                            </div>
+                            <div class="text-4xl text-blue-300 font-light">➔</div>
+                            <div class="text-center flex-1 p-4 rounded-lg">
+                                <div class="text-5xl mb-2">🧠</div>
+                                <h4 class="font-bold">3. Organiza</h4>
+                                <p class="text-sm text-slate-600">Etiqueta, enlaza y estructura la información para crear tu base de conocimiento.</p>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
+            <div id="ia" class="scroll-mt-20 pt-16">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-extrabold tracking-tight">Paso 3: Potencia tu Estudio con IA</h2>
+                        <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-500">Utiliza herramientas de Inteligencia Artificial como ChatGPT y NotebookLM para automatizar tareas, generar material de práctica y obtener nuevas perspectivas sobre tus apuntes.</p>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <div class="lg:flex gap-8">
+                            <div class="flex-1 mb-8 lg:mb-0">
+                                <h3 class="text-2xl font-bold mb-4">Comparativa de Herramientas IA</h3>
+                                <p class="text-slate-600 mb-6">No todas las herramientas son iguales. ChatGPT es un modelo de lenguaje generalista excelente para la creatividad y la generación de contenido, mientras que NotebookLM se especializa en trabajar con tus propias fuentes, garantizando respuestas basadas en tu material de estudio y proporcionando citas.</p>
+                                <div class="chart-container h-72 md:h-80">
+                                    <canvas id="aiToolsChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold mb-4">Asistente Interactivo de Prompts</h3>
+                                <p class="text-slate-600 mb-6">Selecciona una tarea de estudio para ver un ejemplo de prompt efectivo que puedes usar.</p>
+                                <div id="ai-task-selector" class="flex flex-wrap gap-2 mb-4">
+                                    <button data-task="resumen" class="ai-task-btn text-sm px-3 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition">Crear Resumen</button>
+                                    <button data-task="quiz" class="ai-task-btn text-sm px-3 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition">Generar Quiz</button>
+                                    <button data-task="explicacion" class="ai-task-btn text-sm px-3 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition">Explicación Simple</button>
+                                </div>
+                                <div class="bg-slate-800 rounded-xl p-4">
+                                    <p class="text-sm font-semibold text-slate-300 mb-2">Prompt Sugerido:</p>
+                                    <code id="prompt-display" class="text-slate-100 text-sm whitespace-pre-wrap font-mono">Selecciona una tarea para ver un prompt de ejemplo.</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="plan" class="scroll-mt-20 pt-16">
+                 <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-extrabold tracking-tight">Plan de Implementación del Taller</h2>
+                        <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-500">El taller está diseñado como una sesión intensiva y práctica de 2 horas, dividida en cuatro bloques temáticos que construyen un flujo de trabajo completo y aplicable de inmediato.</p>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <div class="lg:flex gap-8 items-center">
+                             <div class="flex-1 mb-8 lg:mb-0">
+                                <h3 class="text-2xl font-bold mb-4">Distribución del Tiempo</h3>
+                                <p class="text-slate-600 mb-6">Cada bloque tiene una duración de 30 minutos, asegurando un ritmo dinámico y cubriendo todos los aspectos del sistema de estudio propuesto, desde la captura manual hasta la optimización con IA.</p>
+                                <div class="chart-container h-64 md:h-72">
+                                    <canvas id="workshopPlanChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <ul class="space-y-4">
+                                    <li class="flex items-start">
+                                        <div class="w-8 h-8 rounded-full bg-blue-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">1</div>
+                                        <div><h4 class="font-semibold">Bloque 1: Método Cornell</h4><p class="text-sm text-slate-500">Fundamentos de la toma de apuntes activos en papel.</p></div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div class="w-8 h-8 rounded-full bg-teal-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">2</div>
+                                        <div><h4 class="font-semibold">Bloque 2: Organización en Notion</h4><p class="text-sm text-slate-500">Digitalización y creación de un sistema de estudio personal.</p></div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div class="w-8 h-8 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">3</div>
+                                        <div><h4 class="font-semibold">Bloque 3: Técnicas Activas</h4><p class="text-sm text-slate-500">Introducción a Feynman, Active Recall y flashcards.</p></div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div class="w-8 h-8 rounded-full bg-rose-500 text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">4</div>
+                                        <div><h4 class="font-semibold">Bloque 4: Potenciando con IA</h4><p class="text-sm text-slate-500">Uso de ChatGPT y NotebookLM para estudio inteligente.</p></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+            
+            <footer class="text-center mt-16 text-sm text-slate-500">
+                <p>Proyecto desarrollado por Santiago Scacciaferro y Zaira Antonella Rosin.</p>
+                <p>Universidad Tecnológica Nacional, Facultad Regional Resistencia. Julio 2025.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sophisticatedPalette = {
+                blue: '#3b82f6',
+                teal: '#14b8a6',
+                amber: '#f59e0b',
+                rose: '#f43f5e',
+                slate: '#64748b',
+                lightBlue: 'rgba(59, 130, 246, 0.2)',
+                lightSlate: 'rgba(100, 116, 139, 0.2)',
+            };
+            
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) return label.join(' ');
+                return label;
+            };
+
+            const commonChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { family: 'Inter', size: 12 } }
+                    },
+                    tooltip: {
+                        callbacks: { title: tooltipTitleCallback },
+                        bodyFont: { family: 'Inter' },
+                        titleFont: { family: 'Inter', weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#e5e7eb' },
+                        ticks: { font: { family: 'Inter' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter' } }
+                    }
+                }
+            };
+            
+            new Chart(document.getElementById('retentionChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Transcripción Pasiva', 'Apuntes Activos (Cornell)'],
+                    datasets: [{
+                        label: 'Retención de Información (%)',
+                        data: [25, 70],
+                        backgroundColor: [sophisticatedPalette.lightSlate, sophisticatedPalette.lightBlue],
+                        borderColor: [sophisticatedPalette.slate, sophisticatedPalette.blue],
+                        borderWidth: 2,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    ...commonChartOptions,
+                    plugins: { ...commonChartOptions.plugins, legend: { display: false } },
+                    scales: { ...commonChartOptions.scales, y: { ...commonChartOptions.scales.y, max: 100, ticks: { ...commonChartOptions.scales.y.ticks, callback: value => value + '%' } } }
+                }
+            });
+            
+            new Chart(document.getElementById('aiToolsChart'), {
+                type: 'radar',
+                data: {
+                    labels: ['Creatividad', 'Generar Quiz', 'Resumir Texto', 'Basado en Fuentes', 'Citar Fuentes'],
+                    datasets: [{
+                        label: 'ChatGPT',
+                        data: [9, 8, 8, 4, 3],
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(59, 130, 246)'
+                    }, {
+                        label: 'NotebookLM',
+                        data: [5, 6, 8, 10, 10],
+                        fill: true,
+                        backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                        borderColor: 'rgb(20, 184, 166)',
+                        pointBackgroundColor: 'rgb(20, 184, 166)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(20, 184, 166)'
+                    }]
+                },
+                options: {
+                     ...commonChartOptions,
+                     scales: {
+                         r: {
+                            angleLines: { color: '#e5e7eb' },
+                            grid: { color: '#e5e7eb' },
+                            pointLabels: { font: { family: 'Inter', size: 12 } },
+                            ticks: { display: false, stepSize: 2 },
+                            min: 0,
+                            max: 10
+                         }
+                     }
+                }
+            });
+
+            new Chart(document.getElementById('workshopPlanChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Método Cornell', 'Notion', 'Técnicas Activas', 'IA'],
+                    datasets: [{
+                        label: 'Distribución del Taller',
+                        data: [30, 30, 30, 30],
+                        backgroundColor: [sophisticatedPalette.blue, sophisticatedPalette.teal, sophisticatedPalette.amber, sophisticatedPalette.rose],
+                        hoverOffset: 4,
+                        borderWidth: 0,
+                    }]
+                },
+                options: { ...commonChartOptions, cutout: '70%' }
+            });
+
+            const aiTasks = {
+                resumen: "Actúa como un estudiante universitario experto. Lee el texto adjunto sobre [TEMA] y crea un resumen estructurado con el método Cornell. En la columna izquierda, genera 3-5 preguntas clave que el texto responda. En la sección de resumen, sintetiza la idea principal en menos de 50 palabras.",
+                quiz: "Actúa como un profesor asistente. Basado en mis apuntes sobre [TEMA], genera un quiz de 5 preguntas de opción múltiple. Cada pregunta debe tener 4 opciones (1 correcta, 3 distractores plausibles). Al final, proporciona la clave de respuestas con una breve explicación para cada una.",
+                explicacion: "Actúa como un tutor paciente y didáctico. Explica el concepto de [CONCEPTO COMPLEJO] de mis apuntes como si yo tuviera 15 años. Usa una analogía simple y evita la jerga técnica. El objetivo es la comprensión intuitiva."
+            };
+            const taskSelector = document.getElementById('ai-task-selector');
+            const promptDisplay = document.getElementById('prompt-display');
+            const taskButtons = taskSelector.querySelectorAll('.ai-task-btn');
+
+            taskSelector.addEventListener('click', (e) => {
+                if (e.target.classList.contains('ai-task-btn')) {
+                    const task = e.target.dataset.task;
+                    promptDisplay.textContent = aiTasks[task];
+
+                    taskButtons.forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+            taskButtons[0].click(); 
+
+            const sections = document.querySelectorAll('main > div[id]');
+            const navLinks = document.querySelectorAll('nav a');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => observer.observe(section));
+        });
+    </script>
+</body>
+</html>

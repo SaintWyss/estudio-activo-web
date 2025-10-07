@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guía Definitiva para Estudiar Mejor - Técnicas Comprobadas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a5b4fc 0%, transparent 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .tab-active {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .method-card {
+            border-left: 4px solid var(--primary);
+        }
+        
+        .technique-card {
+            border-top: 4px solid;
+        }
+        
+        .feynman-card {
+            border-top-color: #ef4444;
+        }
+        
+        .recall-card {
+            border-top-color: #10b981;
+        }
+        
+        .spaced-card {
+            border-top-color: #f59e0b;
+        }
+        
+        .flip-card {
+            perspective: 1000px;
+            height: 200px;
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .flip-card-front {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .flip-card-back {
+            background: white;
+            color: #1f2937;
+            transform: rotateY(180deg);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transition: width 0.5s ease;
+        }
+        
+        .option {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            border-color: var(--primary);
+        }
+        
+        .option.selected {
+            border-color: var(--primary);
+            background: #e0e7ff;
+        }
+        
+        .option.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background-color: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 24px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .main-content-container {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content-container {
+                padding: 1rem;
+            }
+        }
+        
+        .sidebar nav a.active {
+            background: linear-gradient(90deg, var(--primary) 0%, #a855f7 100%);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        }
+        
+        #mobile-tabs .tab.active, #method-tabs .method-tab.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin: auto;
+            height: 280px;
+        }
+        
+        @media(min-width: 768px) {
+            .chart-container {
+                height: 320px;
+            }
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary) 0%, #a855f7 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.15);
+        }
+        
+        .btn-secondary {
+            background-color: #6b7280;
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #374151;
+        }
+        
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .message-box {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .quiz-container-wrapper {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        
+        .file-loader {
+            text-align: center;
+            border: 2px dashed #e5e7eb;
+            padding: 40px;
+            transition: border-color 0.3s;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 antialiased flex">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" aria-label="Navegación principal">
+        <h1 class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-violet-500 mb-8">Guía Definitiva</h1>
+        <div class="relative mb-6">
+            <i class='bx bx-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'></i>
+            <input type="search" id="sidebar-search" placeholder="Buscar sección..." class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+        </div>
+        <nav id="main-tabs" class="flex flex-col space-y-1">
+            <a href="#" data-tab="intro" class="active flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-dashboard' ></i> Inicio</a>
+            <a href="#" data-tab="activos" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-brain' ></i> Captura Activa</a>
+            <a href="#" data-tab="methods" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-book-content'></i> Métodos de Apuntes</a>
+            <a href="#" data-tab="organization" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-data'></i> Tu Sistema</a>
+            <a href="#" data-tab="techniques" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-flask'></i> Técnicas</a>
+            <a href="#" data-tab="workflow" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-calendar-week' ></i> Tu Ciclo Semanal</a>
+            <a href="#" data-tab="quiz" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-help-circle' ></i> Autoevaluación</a>
+            <a href="#" data-tab="resources" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"><i class='bx bxs-archive'></i> Recursos</a>
+        </nav>
+    </aside>
+
+    <div class="main-content-container">
+        <!-- Header -->
+        <header class="mb-6 lg:hidden">
+            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+                <h1 class="text-xl font-bold text-gray-800">Guía Definitiva para Estudiar Mejor</h1>
+                <div class="mt-4 border-b border-gray-200">
+                    <nav id="mobile-tabs" class="flex space-x-4 no-scrollbar overflow-x-auto">
+                        <a href="#" data-tab="intro" class="tab py-3 px-1 text-sm font-medium active whitespace-nowrap">Inicio</a>
+                        <a href="#" data-tab="activos" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Captura</a>
+                        <a href="#" data-tab="methods" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Métodos</a>
+                        <a href="#" data-tab="organization" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Sistema</a>
+                        <a href="#" data-tab="techniques" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Técnicas</a>
+                        <a href="#" data-tab="workflow" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Ciclo</a>
+                        <a href="#" data-tab="quiz" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Quiz</a>
+                        <a href="#" data-tab="resources" class="tab py-3 px-1 text-sm font-medium whitespace-nowrap">Recursos</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+                Transforma tu Forma de Estudiar
+            </h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+                Descubre técnicas científicas que te ayudarán a <span class="highlight">aprender más en menos tiempo</span> y recordar lo que estudias para siempre.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="btn-primary flex items-center">
+                    <i class='bx bx-play-circle mr-2'></i> Comenzar Ahora
+                </button>
+                <a href="#activos" class="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    ¿Por qué funciona?
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div class="card p-6 text-center">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <i class='bx bx-time text-indigo-600 text-xl'></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Ahorra Tiempo</h3>
+                    <p class="text-gray-600 text-sm">Estudia la mitad y aprende el doble con métodos eficientes.</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class='bx bx-brain text-green-600 text-xl'></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Mejora tu Memoria</h3>
+                    <p class="text-gray-600 text-sm">Retén información a largo plazo sin esfuerzo constante.</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
+                        <i class='bx bx-trophy text-amber-600 text-xl'></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Mejores Calificaciones</h3>
+                    <p class="text-gray-600 text-sm">Domina los exámenes con confianza y menos estrés.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <main id="main-content">
+            <!-- Introduction Section -->
+            <section id="content-intro" class="tab-pane space-y-8">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <h2 class="text-3xl font-bold mb-4">La Guía Definitiva para el Aprendizaje Efectivo</h2>
+                    <p class="text-lg text-gray-700">Bienvenido a tu centro de mando para el estudio. Esta guía es un sistema completo para que aprendas de manera activa, organices tu vida académica y domines las técnicas de estudio más efectivas respaldadas por la ciencia. El objetivo es simple: darte el control total de tu aprendizaje para que estudies mejor, no más duro.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl font-bold mb-4">Los 3 Pilares del Éxito Académico</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="flex items-start"><div class="text-2xl text-indigo-500 mr-4"><i class='bx bx-capture'></i></div><div><h4 class="font-semibold">1. Captura y Organización</h4><p class="text-sm text-gray-500">Aprende a tomar apuntes que sirvan y construye tu sistema personal para nunca más perder una idea o una fecha.</p></div></div>
+                        <div class="flex items-start"><div class="text-2xl text-emerald-500 mr-4"><i class='bx bxs-flask'></i></div><div><h4 class="font-semibold">2. Aprendizaje Profundo</h4><p class="text-sm text-gray-500">Domina técnicas basadas en ciencia cognitiva como Feynman y Recuerdo Activo para una retención a largo plazo.</p></div></div>
+                        <div class="flex items-start"><div class="text-2xl text-amber-500 mr-4"><i class='bx bx-sync'></i></div><div><h4 class="font-semibold">3. Integración y Práctica</h4><p class="text-sm text-gray-500">Combina todo en un ciclo de estudio semanal, y pon a prueba tu conocimiento con autoevaluaciones.</p></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Active Learning Section -->
+            <section id="content-activos" class="tab-pane space-y-8" style="display:none;">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm text-center">
+                    <h2 class="text-3xl font-bold mb-2">¿Por Qué Se Me Olvida Todo? La Trampa del Estudio Pasivo</h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">Si alguna vez estudiaste horas para un parcial y al día siguiente no recordabas nada, caíste en la trampa. Estudiar "pasivamente" (releer, subrayar, transcribir) no crea conexiones fuertes en tu cerebro. Es como escuchar una canción de fondo: la oyes, pero no la aprendes.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-red-50 p-6 rounded-2xl border border-red-200 shadow-sm">
+                        <h3 class="text-xl font-bold text-red-700 mb-4 flex items-center">
+                            <i class='bx bxs-error-alt mr-2'></i> La Trampa del Estudio Pasivo
+                        </h3>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li><strong>Falsa Sensación de Competencia:</strong> Llenas hojas y resaltas libros, creyendo que estás avanzando. En realidad, tu cerebro está en piloto automático.</li>
+                            <li><strong>Baja Retención:</strong> Al no procesar la información, la "curva del olvido" actúa implacablemente. Lo que "aprendes" hoy, desaparece mañana.</li>
+                            <li><strong>Pérdida de Tiempo:</strong> Es el camino que requiere más horas para los peores resultados, generando frustración y estrés.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-2xl border border-green-200 shadow-sm">
+                        <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                            <i class='bx bxs-check-shield mr-2'></i> El Poder del Estudio Activo
+                        </h3>
+                         <ul class="space-y-2 text-sm text-gray-700">
+                            <li><strong>Compromiso Cognitivo:</strong> Obligas a tu cerebro a trabajar: filtrar, sintetizar, conectar y cuestionar. Es un "entrenamiento" para tu memoria.</li>
+                            <li><strong>Conexiones Neuronales Fuertes:</strong> Cada vez que explicas un tema con tus palabras o respondes una pregunta sin mirar, refuerzas las vías neuronales.</li>
+                            <li><strong>Estudio Eficiente:</strong> Requiere más esfuerzo mental en el momento, pero consolida el conocimiento, reduciendo drásticamente las horas de repaso necesarias.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <h3 class="text-xl font-bold text-center mb-4">El Impacto en la Retención</h3>
+                    <div class="chart-container">
+                        <canvas id="retentionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Methods Section -->
+            <section id="content-methods" class="tab-pane space-y-8" style="display:none;">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <h2 class="text-3xl font-bold mb-4">El Método Cornell: Tu Herramienta de Reflexión Estructurada</h2>
+                    <p class="text-gray-600 mb-6">Más que un formato, el Método Cornell es un sistema integral para la captura, organización y repaso activo. Su eficacia está respaldada por estudios que reportan mejoras de hasta un 12% en los resultados de exámenes.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                        <div class="bg-gray-50 p-4 rounded-lg border"><h4 class="font-bold">1. Preparación</h4><p class="text-sm text-gray-600">Divide la hoja: notas (derecha), pistas (izquierda) y resumen (abajo).</p></div>
+                        <div class="bg-gray-50 p-4 rounded-lg border"><h4 class="font-bold">2. Captura</h4><p class="text-sm text-gray-600">Durante la clase, anota ideas clave, fórmulas y ejemplos en la columna principal.</p></div>
+                        <div class="bg-gray-50 p-4 rounded-lg border"><h4 class="font-bold">3. Proceso</h4><p class="text-sm text-gray-600">Post-clase (en 24h), formula preguntas en la columna de pistas y escribe el resumen.</p></div>
+                        <div class="bg-gray-50 p-4 rounded-lg border"><h4 class="font-bold">4. Repaso</h4><p class="text-sm text-gray-600">Cubre las notas y responde las preguntas de la columna de pistas (Recuerdo Activo).</p></div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <h2 class="text-2xl font-bold mb-4 text-center">Expandiendo tu Arsenal: Técnicas Visuales y Jerárquicas</h2>
+                    <div class="flex justify-center w-full mb-6">
+                        <nav id="method-tabs" class="flex space-x-4 no-scrollbar overflow-x-auto border-b-2 border-gray-200">
+                            <a href="#" data-method="outline" class="method-tab active py-3 px-1 font-medium whitespace-nowrap">Método de Esquema</a>
+                            <a href="#" data-method="mindmap" class="method-tab py-3 px-1 font-medium whitespace-nowrap">Mapas Mentales</a>
+                            <a href="#" data-method="conceptmap" class="method-tab py-3 px-1 font-medium whitespace-nowrap">Mapas Conceptuales</a>
+                        </nav>
+                    </div>
+                    <div id="method-content"></div>
+                </div>
+            </section>
+
+            <!-- Organization Section -->
+            <section id="content-organization" class="tab-pane space-y-8" style="display:none;">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <h2 class="text-3xl font-bold mb-4">Tu Sistema Personal de Estudio</h2>
+                    <p class="text-gray-600 mb-6">Un buen sistema de estudio no es solo qué técnicas usas, sino cómo las organizas para que funcionen juntas de manera eficiente. Aquí te mostramos cómo crear tu propio sistema personalizado.</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h3 class="text-xl font-bold mb-4">Organiza tu Semana de Estudio</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start p-4 bg-blue-50 rounded-lg">
+                                    <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">L-V</div>
+                                    <div>
+                                        <h4 class="font-bold">Durante la semana</h4>
+                                        <p class="text-sm">Toma apuntes activos en clase y procésalos el mismo día (método Cornell).</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start p-4 bg-green-50 rounded-lg">
+                                    <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">Sáb</div>
+                                    <div>
+                                        <h4 class="font-bold">Sábado de consolidación</h4>
+                                        <p class="text-sm">Revisa toda la semana, haz "volcados cerebrales" y crea flashcards para tus puntos débiles.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start p-4 bg-purple-50 rounded-lg">
+                                    <div class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0">Diario</div>
+                                    <div>
+                                        <h4 class="font-bold">Repaso diario</h4>
+                                        <p class="text-sm">15-30 minutos de repaso espaciado para mantener fresco lo aprendido.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold mb-4">Tu Panel de Control</h3>
+                            <p class="mb-4">Centraliza toda tu vida académica en un solo lugar:</p>
+                            <div class="bg-gray-800 text-white p-4 rounded-lg">
+                                <div class="flex justify-between mb-4">
+                                    <div class="font-bold">Mi Panel Académico</div>
+                                    <div class="text-sm">Semana 15</div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div class="bg-gray-700 p-3 rounded">
+                                        <div class="text-xs text-gray-400">Próximas tareas</div>
+                                        <div class="text-sm mt-1">• Examen Física (2 días)</div>
+                                        <div class="text-sm">• Ensayo Historia (5 días)</div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-700 p-3 rounded">
+                                        <div class="text-xs text-gray-400">Progreso materias</div>
+                                        <div class="mt-1">
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span>Matemáticas</span>
+                                                <span>75%</span>
+                                            </div>
+                                            <div class="progress-bar bg-gray-600">
+                                                <div class="progress-fill bg-green-500" style="width: 75%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-700 p-3 rounded">
+                                    <div class="text-xs text-gray-400">Apuntes recientes</div>
+                                    <div class="text-sm mt-1">• Leyes de Newton</div>
+                                    <div class="text-sm">• Revolución Industrial</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-500 to-blue-500 p-6 rounded-xl text-white">
+                        <h3 class="text-xl font-bold mb-4">¿Por Qué Funciona Este Sistema?</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-start">
+                                <i class='bx bx-check-circle mr-2 mt-1'></i>
+                                <span><strong>Reduce la carga mental:</strong> No tienes que recordar fechas, tu sistema lo hace por ti.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <i class='bx bx-check-circle mr-2 mt-1'></i>
+                                <span><strong>Combate el olvido:</strong> La repetición espaciada mantiene fresco el conocimiento.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <i class='bx bx-check-circle mr-2 mt-1'></i>
+                                <span><strong>Enfoca tu energía:</strong> Sabes exactamente qué estudiar y cuándo.</span>
+                            </div>
+                            <div class="flex items-start">
+                                <i class='bx bx-check-circle mr-2 mt-1'></i>
+                                <span><strong>Reduce el estrés:</strong> Llegas a los exámenes preparado, no desesperado.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Techniques Section -->
+            <section id="content-techniques" class="tab-pane space-y-8" style="display:none;">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 text-center shadow-sm">
+                    <h2 class="text-3xl font-bold mb-2">Técnicas para el Aprendizaje Profundo</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Una vez capturada y organizada la información, estas técnicas, basadas en ciencia cognitiva, aseguran que se transforme en conocimiento duradero.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="technique-card feynman-card card p-6">
+                        <h3 class="text-xl font-bold mb-4">Técnica Feynman</h3>
+                        <p class="mb-4">Explica el concepto como si se lo enseñaras a un niño de 12 años.</p>
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <p class="text-sm font-semibold text-red-700">¿Por qué funciona?</p>
+                            <p class="text-xs mt-1">Si no puedes explicarlo simple, es que no lo entiendes bien.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="technique-card recall-card card p-6">
+                        <h3 class="text-xl font-bold mb-4">Recuerdo Activo</h3>
+                        <p class="mb-4">Intenta recordar sin mirar tus apuntes.</p>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <p class="text-sm font-semibold text-green-700">¿Por qué funciona?</p>
+                            <p class="text-xs mt-1">El esfuerzo por recordar fortalece las conexiones neuronales.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="technique-card spaced-card card p-6">
+                        <h3 class="text-xl font-bold mb-4">Repetición Espaciada</h3>
+                        <p class="mb-4">Repasa en intervalos crecientes de tiempo.</p>
+                        <div class="bg-amber-50 p-4 rounded-lg">
+                            <p class="text-sm font-semibold text-amber-700">¿Por qué funciona?</p>
+                            <p class="text-xs mt-1">Combate la curva del olvido repasando justo antes de olvidar.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-xl text-white">
+                    <h3 class="text-xl font-bold mb-4">La Combinación Perfecta</h3>
+                    <p class="mb-4">Estas técnicas funcionan bien individualmente, pero son imbatibles cuando las combinas:</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Aprende un concepto nuevo (usando Feynman para verificar tu comprensión)</li>
+                        <li>Practica el recuerdo activo (sin mirar tus apuntes)</li>
+                        <li>Programa repasos espaciados (con Anki o similar)</li>
+                    </ol>
+                    <p class="mt-4 font-semibold">Resultado: Aprendizaje profundo y duradero con menos tiempo de estudio.</p>
+                </div>
+            </section>
+
+            <!-- Workflow Section -->
+            <section id="content-workflow" class="tab-pane space-y-8" style="display:none;">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <h2 class="text-3xl font-bold mb-4">El Ciclo de Estudio Sinergético: Tu Plan de Acción Semanal</h2>
+                    <p class="text-gray-600 mb-6">Estas técnicas no son aisladas, sino componentes de un sistema integrado. Su verdadero poder se desata cuando se combinan en un flujo de trabajo coherente. Este plan te ayudará a internalizar el ciclo hasta que se convierta en un hábito.</p>
+                    <ul class="space-y-4">
+                        <li class="p-4 bg-gray-50 rounded-lg border"><strong class="text-indigo-600">Lunes a Viernes (Captura y Organización):</strong> Usa el Método Cornell en clase. Por la tarde/noche, procesa los apuntes: digitalízalos, formula las preguntas en la columna de pistas y escribe el resumen.</li>
+                        <li class="p-4 bg-gray-50 rounded-lg border"><strong class="text-indigo-600">Miércoles (Profundización):</strong> Elige el concepto más complejo de la semana y aplícale la Técnica Feynman hasta que puedas explicarlo de forma simple.</li>
+                        <li class="p-4 bg-gray-50 rounded-lg border"><strong class="text-indigo-600">Sábado (Consolidación):</strong> Revisa los apuntes de la semana. Realiza un "Volcado Cerebral" (Recuerdo Activo) para cada materia y crea tarjetas de repaso para los conceptos más débiles.</li>
+                        <li class="p-4 bg-gray-50 rounded-lg border"><strong class="text-indigo-600">Diariamente (15-30 min - No negociable):</strong> Completa todas las revisiones de repaso espaciado. Esta es la clave para la retención a largo plazo con una inversión de tiempo mínima.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Quiz Section -->
+            <section id="content-quiz" class="tab-pane space-y-8" style="display:none;">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <h2 class="text-2xl font-bold mb-4">Autoevaluación Interactiva</h2>
+                    <p class="text-gray-600 mb-6">La autoevaluación es la pieza central del Recuerdo Activo. Responde estas preguntas para poner en práctica lo que has aprendido.</p>
+                    
+                    <div id="quiz-container" class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md">
+                            <h3 class="text-lg font-bold mb-4">1. ¿Cuál es la principal diferencia entre estudio pasivo y activo?</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="option" data-correct="false">
+                                    <strong>A)</strong> El estudio activo requiere más tiempo
+                                </div>
+                                <div class="option" data-correct="true">
+                                    <strong>B)</strong> El estudio activo involucra procesamiento mental
+                                </div>
+                                <div class="option" data-correct="false">
+                                    <strong>C)</strong> El estudio pasivo es más eficiente
+                                </div>
+                                <div class="option" data-correct="false">
+                                    <strong>D)</strong> No hay diferencia real
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-md">
+                            <h3 class="text-lg font-bold mb-4">2. ¿Qué técnica consiste en explicar un concepto como si se lo enseñaras a un niño?</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="option" data-correct="false">
+                                    <strong>A)</strong> Repetición espaciada
+                                </div>
+                                <div class="option" data-correct="true">
+                                    <strong>B)</strong> Técnica Feynman
+                                </div>
+                                <div class="option" data-correct="false">
+                                    <strong>C)</strong> Método Cornell
+                                </div>
+                                <div class="option" data-correct="false">
+                                    <strong>D)</strong> Mapas mentales
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-md">
+                            <h3 class="text-lg font-bold mb-4">3. ¿Por qué es efectiva la repetición espaciada?</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="option" data-correct="false">
+                                    <strong>A)</strong> Porque estudias todo de una vez
+                                </div>
+                                <div class="option" data-correct="true">
+                                    <strong>B)</strong> Porque repasas justo antes de olvidar
+                                </div>
+                                <div class="option" data-correct="false">
+                                    <strong>C)</strong> Porque es más fácil que estudiar seguido
+                                </div>
+                                <div class="option" data-correct="false">
+                                    <strong>D)</strong> Porque no requiere esfuerzo mental
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <button id="check-answers" class="btn-primary">Verificar Respuestas</button>
+                        <button id="reset-quiz" class="ml-4 px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                            Reiniciar
+                        </button>
+                    </div>
+                    
+                    <div id="quiz-results" class="mt-8 hidden">
+                        <div class="stats-card text-center">
+                            <h3 class="text-xl font-bold mb-2">Tu Resultado</h3>
+                            <div id="score" class="text-3xl font-bold mb-4">0/3</div>
+                            <p id="feedback" class="text-lg"></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section id="content-resources" class="tab-pane space-y-8" style="display:none;">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <h2 class="text-2xl font-bold mb-4">Biblioteca de Recursos Esenciales</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="p-4 bg-gray-50 rounded-lg border">
+                            <h3 class="font-bold text-indigo-600">Toma de Apuntes</h3>
+                            <ul class="text-sm mt-2 space-y-1"><a href="https://lsc.cornell.edu/how-to-study/taking-notes/cornell-note-taking-system/" target="_blank" rel="noopener" class="hover:underline">Guía Oficial Cornell</a>, <a href="https://templatelab.com/cornell-notes/" target="_blank" rel="noopener" class="hover:underline">Plantillas Cornell</a>, <a href="https://www.xmind.net" target="_blank" rel="noopener" class="hover:underline">XMind (Mapas Mentales)</a>.</ul>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg border">
+                            <h3 class="font-bold text-indigo-600">Organización</h3>
+                            <ul class="text-sm mt-2 space-y-1"><a href="https://notion.so" target="_blank" rel="noopener" class="hover:underline">Notion</a> (Plan Educativo), <a href="https://apps.ankiweb.net" target="_blank" rel="noopener" class="hover:underline">Anki</a> (Repetición Espaciada).</ul>
+                        </div>
+                         <div class="p-4 bg-gray-50 rounded-lg border">
+                            <h3 class="font-bold text-indigo-600">Tutoriales en Video</h3>
+                            <ul class="text-sm mt-2 space-y-1"><a href="https://www.youtube.com/watch?v=38VuJ5xWlPw" target="_blank" rel="noopener" class="hover:underline">Organizar estudios con Notion</a>, <a href="https://www.youtube.com/watch?v=98pbPqlkBlc" target="_blank" rel="noopener" class="hover:underline">Tutorial de Anki en Español</a>.</ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+
+    <div id="message-box-overlay" class="message-box-overlay" style="display: none;">
+        <div class="message-box">
+            <p id="message-box-text" class="mb-4"></p>
+            <button id="message-box-ok-btn" class="btn btn-primary">OK</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const styles = getComputedStyle(document.documentElement);
+            const primaryAccent = styles.getPropertyValue('--primary').trim();
+            const secondaryAccent = styles.getPropertyValue('--secondary').trim();
+            const textColorLight = styles.getPropertyValue('--text-light').trim();
+            Chart.defaults.color = textColorLight;
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            let retentionChartInstance = null;
+            
+            function createRetentionChart() {
+                if (retentionChartInstance) return;
+                const ctx = document.getElementById('retentionChart');
+                if (!ctx) return;
+                retentionChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: { 
+                        labels: ['Estudio Pasivo (Relectura)', 'Estudio Activo (Práctica)'], 
+                        datasets: [{ 
+                            label: 'Retención de Información (%)', 
+                            data: [25, 75], 
+                            backgroundColor: ['#ef4444', secondaryAccent], 
+                            borderRadius: 5 
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: false } }, 
+                        scales: { 
+                            y: { 
+                                max: 100, 
+                                ticks: { callback: v => v + '%' } 
+                            } 
+                        } 
+                    }
+                });
+            }
+
+            // Tab Navigation
+            const mainTabs = document.querySelectorAll('#main-tabs a, #mobile-tabs a');
+            function activateTab(tabId) {
+                document.querySelectorAll('#main-tabs a, #mobile-tabs a').forEach(a => a.classList.remove('active'));
+                document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(a => a.classList.add('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+                const target = document.getElementById(`content-${tabId}`);
+                if (target) { 
+                    target.style.display = 'block'; 
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                if (tabId === 'activos') {
+                    createRetentionChart();
+                }
+            }
+            mainTabs.forEach(link => {
+                link.addEventListener('click', e => { 
+                    e.preventDefault(); 
+                    activateTab(link.dataset.tab); 
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById('sidebar-search');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                document.querySelectorAll('#main-tabs a').forEach(link => {
+                    const text = link.textContent.toLowerCase();
+                    if (text.includes(query)) {
+                        link.style.display = 'flex';
+                    } else {
+                        link.style.display = 'none';
+                    }
+                });
+            });
+
+            // Method tabs
+            const methodContent = document.getElementById('method-content');
+            const methodData = {
+                outline: { 
+                    title: 'Método de Esquema (Outline)', 
+                    content: 'Ideal para materias con estructura lógica. Organiza la información en niveles y subniveles, usando viñetas y sangrías. Fomenta una comprensión estructural y revela la arquitectura del tema.', 
+                    tools: 'Workflowy, Dynalist, Microsoft Word.'
+                },
+                mindmap: { 
+                    title: 'Mapas Mentales (Mind Mapping)', 
+                    content: 'Técnica visual y no lineal. Se comienza con un concepto central y se dibujan ramificaciones que representan subtemas. El uso de colores e imágenes crea múltiples "ganchos" mnemotécnicos.', 
+                    tools: 'XMind, MindMeister, Coggle.' 
+                },
+                conceptmap: { 
+                    title: 'Mapas Conceptuales (Concept Mapping)', 
+                    content: 'Más analítico y estructurado. Representa relaciones formales entre conceptos mediante nodos y líneas etiquetadas (p. ej., "causa", "se compone de"). Ideal para visualizar sistemas complejos.', 
+                    tools: 'CmapTools, Lucidchart, Diagrams.net.' 
+                }
+            };
+            
+            function renderMethodContent(method) {
+                const data = methodData[method];
+                methodContent.innerHTML = `
+                    <h3 class="text-xl font-bold">${data.title}</h3>
+                    <p class="mt-2 text-gray-600">${data.content}</p>
+                    <p class="mt-4 text-sm"><strong>Herramientas recomendadas:</strong> ${data.tools}</p>
+                `;
+            }
+            
+            document.querySelectorAll('#method-tabs a').forEach(tab => {
+                tab.addEventListener('click', e => {
+                    e.preventDefault();
+                    document.querySelectorAll('#method-tabs a').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderMethodContent(e.target.dataset.method);
+                });
+            });
+            renderMethodContent('outline');
+            
+            // Quiz Functionality
+            const options = document.querySelectorAll('.option');
+            const checkAnswersBtn = document.getElementById('check-answers');
+            const resetQuizBtn = document.getElementById('reset-quiz');
+            const quizResults = document.getElementById('quiz-results');
+            const scoreElement = document.getElementById('score');
+            const feedbackElement = document.getElementById('feedback');
+            
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options in the same question
+                    const parent = this.closest('.grid');
+                    parent.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                });
+            });
+            
+            checkAnswersBtn.addEventListener('click', function() {
+                let correctCount = 0;
+                let totalQuestions = 3; // Hardcoded for this example
+                
+                document.querySelectorAll('.bg-white').forEach(questionContainer => {
+                    const selectedOption = questionContainer.querySelector('.option.selected');
+                    if (selectedOption) {
+                        const isCorrect = selectedOption.getAttribute('data-correct') === 'true';
+                        
+                        // Visual feedback
+                        questionContainer.querySelectorAll('.option').forEach(option => {
+                            option.classList.remove('correct', 'incorrect');
+                            if (option.getAttribute('data-correct') === 'true') {
+                                option.classList.add('correct');
+                            } else if (option === selectedOption && !isCorrect) {
+                                option.classList.add('incorrect');
+                            }
+                        });
+                        
+                        if (isCorrect) correctCount++;
+                    }
+                });
+                
+                // Show results
+                scoreElement.textContent = `${correctCount}/${totalQuestions}`;
+                
+                if (correctCount === totalQuestions) {
+                    feedbackElement.textContent = "¡Excelente! Has comprendido perfectamente los conceptos clave.";
+                } else if (correctCount >= 2) {
+                    feedbackElement.textContent = "¡Buen trabajo! Tienes una buena comprensión, pero revisa los conceptos que fallaste.";
+                } else {
+                    feedbackElement.textContent = "Sigue practicando. Revisa los contenidos y vuelve a intentarlo.";
+                }
+                
+                quizResults.classList.remove('hidden');
+            });
+            
+            resetQuizBtn.addEventListener('click', function() {
+                // Reset all options
+                document.querySelectorAll('.option').forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect');
+                });
+                
+                // Hide results
+                quizResults.classList.add('hidden');
+            });
+
+            // Message box functionality
+            const messageBoxOverlay = document.getElementById('message-box-overlay');
+            const messageBoxText = document.getElementById('message-box-text');
+            function showMessage(message) {
+                messageBoxText.textContent = message;
+                messageBoxOverlay.style.display = 'flex';
+                messageBoxOverlay.querySelector('button').onclick = () => messageBoxOverlay.style.display = 'none';
+            }
+
+            activateTab('intro');
+        });
+    </script>
+</body>
+</html>

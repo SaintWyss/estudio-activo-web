@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: Estrategias de Estudio Potenciadas con IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .flow-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            min-height: 80px;
+            flex-grow: 1;
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            color: #118AB2;
+            margin: 0 0.5rem;
+            align-self: center;
+        }
+         .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #118AB2;
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            width: 50%;
+            padding: 1rem 2rem;
+        }
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            padding-right: 4rem;
+            text-align: right;
+        }
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            padding-left: 4rem;
+            text-align: left;
+        }
+        .timeline-dot {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background-color: #FFD166;
+            border: 4px solid #118AB2;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        .timeline-item:nth-child(odd) .timeline-dot {
+            right: -10px;
+        }
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: -10px;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+    
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-6xl font-black text-slate-900 mb-2">Estrategias de Estudio Potenciadas con IA</h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">Un taller práctico para transformar tu método de aprendizaje, diseñado para estudiantes de la Beca Manuel Belgrano.</p>
+        </header>
+        
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <section class="md:col-span-2 bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold mb-4 text-[#073B4C]">1. La Base: Apuntes Activos vs. Pasivos</h2>
+                <p class="text-slate-600 mb-6">El primer paso para un estudio eficaz es cambiar la forma en que tomas notas. Dejar de ser un transcriptor pasivo y convertirse en un procesador activo de la información es clave para la retención. Este taller se enfoca en enseñar métodos que obligan a tu cerebro a interactuar con el material desde el primer momento.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-[#118AB2]">El Poder del Método Cornell</h3>
+                        <p class="text-slate-600 mb-4">Este sistema divide la página en secciones para notas, preguntas clave y un resumen. Fomenta la reflexión activa después de clase, convirtiendo tus apuntes en una poderosa herramienta de repaso y auto-evaluación.</p>
+                        <div class="border-2 border-dashed border-slate-300 p-4 rounded-lg text-sm">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="col-span-2 p-2 bg-slate-100 rounded">
+                                    <h4 class="font-bold">Área de Notas (Derecha)</h4>
+                                    <p>Aquí registras las ideas principales de la clase de forma concisa.</p>
+                                </div>
+                                 <div class="row-span-2 p-2 bg-blue-100 rounded">
+                                    <h4 class="font-bold">Columna de Pistas (Izquierda)</h4>
+                                    <p>Después de clase, formula preguntas o palabras clave basadas en tus notas.</p>
+                                </div>
+                                <div class="col-span-2 p-2 bg-slate-100 rounded mt-2 h-24"></div>
+                            </div>
+                             <div class="p-2 bg-amber-100 rounded mt-2">
+                                <h4 class="font-bold">Área de Resumen (Inferior)</h4>
+                                <p>Sintetiza en 1-2 oraciones la idea principal de la página.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            <canvas id="retentionChart"></canvas>
+                        </div>
+                         <p class="text-center text-sm text-slate-500 mt-2">El método Cornell puede duplicar la retención de información a largo plazo en comparación con la transcripción lineal.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="md:col-span-2 bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold mb-4 text-[#073B4C]">2. Digitaliza y Organiza tu Conocimiento</h2>
+                <p class="text-slate-600 mb-6">Los apuntes en papel son excelentes para la captura inicial, pero un sistema digital como Notion te permite construir un "segundo cerebro". Podrás conectar ideas, encontrar información al instante y tener todas tus materias organizadas en un solo lugar, accesible desde cualquier dispositivo.</p>
+                <div class="flex flex-col md:flex-row items-center justify-around space-y-4 md:space-y-0 md:space-x-4 w-full">
+                    <div class="flow-step">
+                        <span class="text-4xl mr-3">✍️</span>
+                        <div>
+                            <h4 class="font-bold">Paso 1: Apunte Cornell</h4>
+                            <p class="text-sm">Toma notas activas en papel durante la clase.</p>
+                        </div>
+                    </div>
+                    <div class="flow-arrow hidden md:block">→</div>
+                     <div class="flow-arrow block md:hidden">↓</div>
+                    <div class="flow-step">
+                         <span class="text-4xl mr-3">📱</span>
+                        <div>
+                            <h4 class="font-bold">Paso 2: Digitalización</h4>
+                            <p class="text-sm">Escanea o transcribe tus notas a una página de Notion.</p>
+                        </div>
+                    </div>
+                    <div class="flow-arrow hidden md:block">→</div>
+                    <div class="flow-arrow block md:hidden">↓</div>
+                    <div class="flow-step">
+                         <span class="text-4xl mr-3">🧠</span>
+                        <div>
+                            <h4 class="font-bold">Paso 3: Organización</h4>
+                            <p class="text-sm">Etiqueta, enlaza y organiza dentro de tu base de conocimiento.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                 <h2 class="text-3xl font-bold mb-4 text-[#073B4C]">3. Del Apunte a la Práctica</h2>
+                 <p class="text-slate-600 mb-6">Tener buenos apuntes es solo el comienzo. El aprendizaje real ocurre cuando te esfuerzas por recordar y explicar la información. El taller introduce técnicas de estudio activo que te obligan a salir del modo pasivo de re-lectura.</p>
+                <div class="chart-container h-96">
+                    <canvas id="activeStudyChart"></canvas>
+                </div>
+                <p class="text-center text-sm text-slate-500 mt-2">Una sesión de estudio efectiva combina la recuperación activa, la explicación profunda y la revisión espaciada.</p>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col">
+                 <h2 class="text-3xl font-bold mb-4 text-[#073B4C]">Repaso Espaciado</h2>
+                 <p class="text-slate-600 mb-6">Para vencer la "curva del olvido", es crucial repasar la información en intervalos crecientes. Esta técnica convierte el conocimiento a corto plazo en memoria a largo plazo de manera mucho más eficiente que estudiar todo la noche anterior.</p>
+                 <div class="timeline flex-grow">
+                     <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4 class="font-bold text-[#118AB2]">Día 1</h4>
+                        <p>Toma de apuntes y primer repaso (dentro de 24h).</p>
+                     </div>
+                     <div class="timeline-item">
+                         <div class="timeline-dot"></div>
+                         <h4 class="font-bold text-[#118AB2]">Día 3</h4>
+                         <p>Segundo repaso. Enfócate en las preguntas de la columna Cornell.</p>
+                     </div>
+                      <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4 class="font-bold text-[#118AB2]">Día 7</h4>
+                        <p>Tercer repaso. Intenta explicar el tema sin mirar las notas.</p>
+                     </div>
+                      <div class="timeline-item">
+                         <div class="timeline-dot"></div>
+                         <h4 class="font-bold text-[#118AB2]">Día 16</h4>
+                         <p>Cuarto repaso. El conocimiento comienza a consolidarse.</p>
+                     </div>
+                 </div>
+            </section>
+            
+            <section class="md:col-span-2 bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold mb-4 text-[#073B4C]">4. El Impulso de la IA: Tu Asistente de Estudio</h2>
+                 <p class="text-slate-600 mb-6">La Inteligencia Artificial puede ser un aliado increíble para potenciar tu estudio. Herramientas como ChatGPT y NotebookLM no reemplazan tu esfuerzo, sino que lo multiplican, automatizando tareas repetitivas y ofreciéndote nuevas formas de interactuar con el material.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                         <div class="text-center mb-8">
+                            <div class="text-7xl font-black text-[#06D6A0]">40%</div>
+                            <p class="text-slate-600 font-bold">Menos tiempo de preparación</p>
+                            <p class="text-sm text-slate-500">Puedes reducir significativamente el tiempo que dedicas a crear resúmenes, flashcards y preguntas de práctica.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-[#118AB2]">Usos Prácticos de la IA</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-600">
+                            <li><strong>Generar resúmenes:</strong> Pide un resumen tipo Cornell de un PDF de 20 páginas.</li>
+                            <li><strong>Crear Flashcards:</strong> Transforma tus apuntes en tarjetas de Anki en segundos.</li>
+                            <li><strong>Simular exámenes:</strong> Solicita preguntas de opción múltiple sobre un tema específico.</li>
+                            <li><strong>Explicaciones alternativas:</strong> Pide que te explique un concepto difícil como si tuvieras 10 años.</li>
+                        </ul>
+                    </div>
+                    <div>
+                         <div class="chart-container">
+                            <canvas id="aiToolsChart"></canvas>
+                        </div>
+                        <p class="text-center text-sm text-slate-500 mt-2">Compara las fortalezas de cada herramienta para elegir la mejor según tu necesidad del momento.</p>
+                    </div>
+                </div>
+            </section>
+
+             <section class="md:col-span-2 bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold mb-4 text-[#073B4C]">Estructura del Taller (2 Horas)</h2>
+                <p class="text-slate-600 mb-6">El taller está diseñado para ser una sesión intensiva y práctica. Cada bloque se basa en el anterior, culminando en un flujo de trabajo completo que los estudiantes pueden implementar inmediatamente. El enfoque es 100% práctico, con plantillas y guías para facilitar la adopción.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#06D6A0] text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">1</div>
+                                <div>
+                                    <h4 class="font-bold">Bloque 1: Método Cornell (30 min)</h4>
+                                    <p class="text-slate-600 text-sm">Fundamentos de la toma de apuntes activos en papel.</p>
+                                </div>
+                            </li>
+                             <li class="flex items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#118AB2] text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">2</div>
+                                <div>
+                                    <h4 class="font-bold">Bloque 2: Organización en Notion (30 min)</h4>
+                                    <p class="text-slate-600 text-sm">Digitalización y creación de un sistema de estudio personal.</p>
+                                </div>
+                            </li>
+                             <li class="flex items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#FFD166] text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">3</div>
+                                <div>
+                                    <h4 class="font-bold">Bloque 3: Técnicas Activas (30 min)</h4>
+                                    <p class="text-slate-600 text-sm">Introducción a Feynman, Active Recall y flashcards.</p>
+                                </div>
+                            </li>
+                             <li class="flex items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#EF476F] text-white font-bold flex items-center justify-center mr-4 flex-shrink-0">4</div>
+                                <div>
+                                    <h4 class="font-bold">Bloque 4: Potenciando con IA (30 min)</h4>
+                                    <p class="text-slate-600 text-sm">Uso de ChatGPT y NotebookLM para estudio inteligente.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                     <div class="chart-container h-80">
+                        <canvas id="workshopStructureChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="text-center mt-12 text-sm text-slate-500">
+            <p>Proyecto desarrollado por Santiago Scacciaferro y Zaira Antonella Rosin para el programa de Becas Manuel Belgrano.</p>
+            <p>Universidad Tecnológica Nacional, Facultad Regional Resistencia. Julio 2025.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const energeticPalette = {
+                green: '#06D6A0',
+                blue: '#118AB2',
+                yellow: '#FFD166',
+                red: '#EF476F',
+                dark: '#073B4C',
+                lightBlue: 'rgba(17, 138, 178, 0.2)',
+                lightRed: 'rgba(239, 71, 111, 0.2)',
+            };
+            
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                    return label.join(' ');
+                }
+                return label;
+            };
+
+            const processLabels = (labels) => {
+                return labels.map(label => {
+                    if (label.length > 16) {
+                        const words = label.split(' ');
+                        const newLabel = [];
+                        let line = '';
+                        words.forEach(word => {
+                            if ((line + word).length > 16) {
+                                newLabel.push(line.trim());
+                                line = '';
+                            }
+                            line += word + ' ';
+                        });
+                        newLabel.push(line.trim());
+                        return newLabel;
+                    }
+                    return label;
+                });
+            };
+
+            const commonChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                           title: tooltipTitleCallback
+                        },
+                        bodyFont: { family: 'Inter' },
+                        titleFont: { family: 'Inter' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e5e7eb'
+                        },
+                        ticks: {
+                             font: { family: 'Inter' }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: { family: 'Inter' }
+                        }
+                    }
+                }
+            };
+            
+            const retentionCtx = document.getElementById('retentionChart');
+            if(retentionCtx) {
+                new Chart(retentionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Transcripción Pasiva', 'Apuntes Lineales', 'Método Cornell'],
+                        datasets: [{
+                            label: 'Retención de Información (%)',
+                            data: [20, 35, 65],
+                            backgroundColor: [energeticPalette.lightRed, energeticPalette.lightBlue, energeticPalette.green],
+                            borderColor: [energeticPalette.red, energeticPalette.blue, energeticPalette.dark],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        ...commonChartOptions,
+                        plugins: { ...commonChartOptions.plugins, legend: { display: false } },
+                        scales: { ...commonChartOptions.scales, y: { ...commonChartOptions.scales.y, max: 100, ticks: { ...commonChartOptions.scales.y.ticks, callback: value => value + '%' } } }
+                    }
+                });
+            }
+
+            const activeStudyCtx = document.getElementById('activeStudyChart');
+            if (activeStudyCtx) {
+                new Chart(activeStudyCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Active Recall (Autoevaluación)', 'Técnica Feynman (Explicar)', 'Repaso y Conexión de Ideas'],
+                        datasets: [{
+                            label: 'Componentes de Estudio Activo',
+                            data: [50, 30, 20],
+                            backgroundColor: [energeticPalette.blue, energeticPalette.green, energeticPalette.yellow],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: { ...commonChartOptions }
+                });
+            }
+
+            const aiToolsCtx = document.getElementById('aiToolsChart');
+            if (aiToolsCtx) {
+                const labels = ['Generación de Resúmenes', 'Creación de Preguntas', 'Citas y Referencias', 'Explicaciones Creativas'];
+                new Chart(aiToolsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: processLabels(labels),
+                        datasets: [{
+                            label: 'ChatGPT',
+                            data: [9, 8, 5, 9],
+                            backgroundColor: energeticPalette.blue,
+                        }, {
+                            label: 'NotebookLM',
+                            data: [7, 7, 9, 6],
+                            backgroundColor: energeticPalette.green,
+                        }]
+                    },
+                    options: { 
+                        ...commonChartOptions,
+                        scales: { ...commonChartOptions.scales, y: { ...commonChartOptions.scales.y, min:0, max: 10, ticks: { ...commonChartOptions.scales.y.ticks, stepSize: 1 } } }
+                     }
+                });
+            }
+            
+            const workshopCtx = document.getElementById('workshopStructureChart');
+            if (workshopCtx) {
+                new Chart(workshopCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Bloque 1: Cornell', 'Bloque 2: Notion', 'Bloque 3: Técnicas Activas', 'Bloque 4: IA'],
+                        datasets: [{
+                            data: [25, 25, 25, 25],
+                            backgroundColor: [
+                                energeticPalette.green,
+                                energeticPalette.blue,
+                                energeticPalette.yellow,
+                                energeticPalette.red
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: { ...commonChartOptions }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
